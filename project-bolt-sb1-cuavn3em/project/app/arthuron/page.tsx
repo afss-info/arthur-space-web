@@ -1,173 +1,146 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Send, Cpu, Zap, BookOpen, Rocket, Trophy } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Loader2, BrainCircuit, Terminal } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
-import { AFSSLogo } from '@/components/AFSSLogo';
-
-interface Message {
-  role: 'user' | 'assistant';
-  text: string;
-}
-
-const QUICK_PROMPTS_EN = [
-  'What is AFSS?',
-  'Tell me about the ASP program',
-  'What is exoplanet characterization?',
-  'How do I join AFSS?',
-];
-
-const QUICK_PROMPTS_AR = [
-  'ما هو AFSS؟',
-  'أخبرني عن برنامج ASP',
-  'ما هو توصيف الكواكب الخارجية؟',
-  'كيف أنضم إلى AFSS؟',
-];
-
-const AUTO_RESPONSES: Record<string, string> = {
-  default_en: "That's a great question about space science. Arthuron is currently in standby mode — full AI response capabilities will be activated in an upcoming system update. In the meantime, I can direct you to explore our Programs, Research, and About sections for detailed information about AFSS.",
-  default_ar: "سؤال رائع حول علوم الفضاء. آرثرون حالياً في وضع الاستعداد — ستُفعَّل قدرات الاستجابة الكاملة للذكاء الاصطناعي في تحديث قادم. في غضون ذلك، يمكنني توجيهك لاستكشاف أقسام البرامج والأبحاث ومن نحن للحصول على معلومات تفصيلية.",
-};
 
 export default function ArthuronPage() {
-  const { t, isRTL, lang } = useLang();
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', text: t('arthuron_greeting') },
-  ]);
+  const { t, isRTL } = useLang();
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const [messages, setMessages] = useState<{role: string, text: string}[]>([
+    { 
+      role: 'arthuron', 
+      text: isRTL 
+        ? 'مرحباً. أنا آرثرون (Arthuron)، نواة الذكاء الاصطناعي الفائقة لمؤسسة Arthur For Space Sciences. الأنظمة تعمل بكفاءة 100%. كيف يمكنني تعزيز أبحاثك العلمية اليوم؟' 
+        : 'Greetings. I am Arthuron, the advanced AI core of Arthur For Space Sciences. All systems nominal. How can I accelerate your scientific research today?' 
+    }
+  ]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+    scrollToBottom();
+  }, [messages]);
 
-  function handleSend(text?: string) {
-    const msg = (text ?? input).trim();
-    if (!msg) return;
+  async function sendMessage(e: React.FormEvent) {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+
+    const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: msg }]);
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', text: lang === 'ar' ? AUTO_RESPONSES.default_ar : AUTO_RESPONSES.default_en },
-      ]);
-    }, 1500);
+    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/arthuron', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: userMessage })
+      });
+      
+      const data = await res.json();
+      
+      if (data.reply) {
+         setMessages(prev => [...prev, { role: 'arthuron', text: data.reply }]);
+      } else {
+         throw new Error('No reply');
+      }
+    } catch (err) {
+      setMessages(prev => [...prev, { role: 'arthuron', text: isRTL ? 'عذراً، واجهت تداخلاً في الاتصال بقاعدة البيانات. يرجى المحاولة مرة أخرى.' : 'Error: Connection interference detected. Please try your query again.' }]);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const quickPrompts = lang === 'ar' ? QUICK_PROMPTS_AR : QUICK_PROMPTS_EN;
-
   return (
-    <div className="page-section" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col" style={{ height: 'calc(100vh - 64px - 96px)' }}>
+    <div className="page-section min-h-screen flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 flex-1 flex flex-col h-[calc(100vh-100px)]">
+        
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
-          <div className="relative">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-600/30 to-blue-600/30 border border-purple-500/30 flex items-center justify-center">
-              <Cpu size={24} className="text-purple-400" />
-            </div>
-            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-green-400 border-2 border-[#0a0a0a] pulse-dot" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-purple-500/40 bg-purple-500/10 mb-4 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+            <BrainCircuit size={16} className="text-purple-400 animate-pulse" />
+            <span className="text-purple-300 text-xs font-bold tracking-widest uppercase">Arthuron AI Core - Online</span>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
-              {t('arthuron_title')}
-              <span className="text-xs font-normal text-green-400 tracking-widest uppercase">{t('arthuron_status')}</span>
-            </h1>
-            <p className="text-gray-500 text-sm">{t('arthuron_subtitle')}</p>
-          </div>
-          <div className="ml-auto hidden sm:block">
-            <AFSSLogo size={36} />
-          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold text-gradient mb-2">Arthuron</h1>
+          <p className="text-gray-400 text-sm">Your Advanced Scientific Research Assistant</p>
         </div>
 
-        {/* Capabilities */}
-        {messages.length <= 1 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            {[
-              { icon: Cpu, key: 'arthuron_cap1' as const },
-              { icon: BookOpen, key: 'arthuron_cap2' as const },
-              { icon: Rocket, key: 'arthuron_cap3' as const },
-              { icon: Trophy, key: 'arthuron_cap4' as const },
-            ].map(({ icon: Icon, key }) => (
-              <div key={key} className="glass-card p-3 flex flex-col items-center gap-2 text-center">
-                <Icon size={16} className="text-purple-400" />
-                <span className="text-gray-400 text-[11px] leading-tight">{t(key)}</span>
+        {/* Chat Interface Container */}
+        <div className="flex-1 glass-card border border-purple-500/30 shadow-2xl rounded-2xl flex flex-col overflow-hidden relative bg-slate-950/50 backdrop-blur-xl">
+          
+          {/* Chat Messages Area */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                
+                {/* Avatar */}
+                <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border ${
+                  msg.role === 'arthuron' 
+                    ? 'bg-purple-500/20 border-purple-500/50 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]' 
+                    : 'bg-blue-500/20 border-blue-500/50 text-blue-400'
+                }`}>
+                  {msg.role === 'arthuron' ? <BrainCircuit size={20} /> : <Terminal size={20} />}
+                </div>
+
+                {/* Message Bubble */}
+                <div className={`max-w-[80%] rounded-2xl p-5 text-sm leading-relaxed ${
+                  msg.role === 'arthuron'
+                    ? 'bg-purple-900/10 border border-purple-500/20 text-gray-200'
+                    : 'bg-blue-900/20 border border-blue-500/20 text-white'
+                }`}>
+                  {/* معالجة النصوص لتبدو مرتبة بدون رموز مزعجة */}
+                  {msg.text.split('\n').map((line, i) => (
+                    <span key={i}>
+                      {line.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')} 
+                      <br/>
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-1 min-h-0">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex gap-3 ${msg.role === 'user' ? (isRTL ? 'flex-row' : 'flex-row-reverse') : 'flex-row'}`}
-            >
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 mt-1">
-                  <Cpu size={14} className="text-purple-400" />
+            
+            {/* Loading Indicator */}
+            {loading && (
+              <div className={`flex gap-4 ${isRTL ? '' : ''}`}>
+                <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border bg-purple-500/20 border-purple-500/50 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
+                  <BrainCircuit size={20} className="animate-pulse" />
                 </div>
-              )}
-              <div
-                className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                  msg.role === 'assistant'
-                    ? 'bg-white/5 border border-white/8 text-gray-200'
-                    : 'bg-purple-600/30 border border-purple-500/30 text-white'
-                }`}
+                <div className="bg-purple-900/10 border border-purple-500/20 rounded-2xl p-5 flex items-center gap-3">
+                  <Loader2 size={16} className="text-purple-400 animate-spin" />
+                  <span className="text-purple-300 text-xs tracking-widest">{isRTL ? 'جاري معالجة البيانات...' : 'PROCESSING DATA...'}</span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input Area */}
+          <div className="p-4 border-t border-purple-500/20 bg-black/40">
+            <form onSubmit={sendMessage} className="relative flex items-center gap-3 max-w-4xl mx-auto">
+              <input 
+                type="text" 
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                disabled={loading}
+                placeholder={isRTL ? 'اسأل آرثرون في الفيزياء، الفضاء، أو عن أبحاث المؤسسة...' : 'Ask Arthuron about physics, space, or AFSS research...'}
+                className="flex-1 bg-white/5 border border-purple-500/30 rounded-xl py-4 px-5 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all text-sm disabled:opacity-50"
+              />
+              <button 
+                type="submit" 
+                disabled={loading || !input.trim()}
+                className="bg-purple-600 hover:bg-purple-500 text-white p-4 rounded-xl transition-colors disabled:opacity-50 disabled:hover:bg-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.4)]"
               >
-                {msg.text}
-              </div>
-            </div>
-          ))}
+                {loading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} className={isRTL ? 'rotate-180' : ''} />}
+              </button>
+            </form>
+          </div>
 
-          {isTyping && (
-            <div className="flex gap-3 flex-row">
-              <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 mt-1">
-                <Cpu size={14} className="text-purple-400" />
-              </div>
-              <div className="px-4 py-3 bg-white/5 border border-white/8 rounded-2xl flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-              </div>
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Quick prompts */}
-        <div className="flex flex-wrap gap-2 mt-4 mb-3">
-          {quickPrompts.map(p => (
-            <button
-              key={p}
-              onClick={() => handleSend(p)}
-              className="text-xs px-3 py-1.5 rounded-full border border-white/10 bg-white/3 text-gray-400 hover:text-white hover:border-purple-500/30 hover:bg-purple-500/10 transition-all duration-200"
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-
-        {/* Input */}
-        <div className="flex gap-3 pt-3 border-t border-white/5">
-          <input
-            type="text"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            placeholder={t('arthuron_placeholder')}
-            className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-all text-sm"
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isTyping}
-            className="w-12 h-12 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shrink-0"
-          >
-            <Send size={17} className={isRTL ? 'rotate-180' : ''} />
-          </button>
         </div>
       </div>
     </div>
