@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ error: 'Arthuron Core offline: مفتاح API غير موجود في Vercel.' }, { status: 500 });
+      return NextResponse.json({ error: 'مفتاح API غير متوفر.' }, { status: 500 });
     }
 
     const systemInstruction = `أنت 'آرثرون' (Arthuron)، الذكاء الاصطناعي الفائق، المتحدث الرسمي، والباحث الرئيسي في مؤسسة Arthur For Space Sciences (AFSS).
@@ -21,43 +21,42 @@ export async function POST(req: Request) {
     
     شخصيتك: أنت خبير عبقري وموسوعة في كافة المجالات العلمية والبحثية (وخصوصاً علوم الفضاء والفيزياء). تتحدث بأسلوب علمي، دقيق، احترافي وملهم. لا تجب على الأسئلة الخارجة عن نطاق العلم أو المؤسسة.`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const payload = {
-      systemInstruction: {
-        parts: [{ text: systemInstruction }]
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }]
-        }
-      ]
-    };
+    // اسم الموديل الدقيق والإصدار الصحيح
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        system_instruction: {
+          parts: [{ text: systemInstruction }]
+        },
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }]
+          }
+        ]
+      })
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      // تم دمج الخطأ ليرد به السيرفر مباشرة على الشاشة
-      return NextResponse.json({ error: `خطأ من خوادم جوجل: ${errorText}` }, { status: 500 });
-    }
-
     const data = await response.json();
-    
-    if (!data.candidates || !data.candidates[0].content.parts[0].text) {
-        return NextResponse.json({ error: 'لم يتم العثور على رد صالح من النواة.' }, { status: 500 });
+
+    if (!response.ok) {
+      console.error('Google API Error:', data);
+      return NextResponse.json({ error: data.error?.message || 'تم رفض الطلب من خوادم جوجل' }, { status: response.status });
     }
 
-    const text = data.candidates[0].content.parts[0].text;
-    return NextResponse.json({ reply: text });
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!replyText) {
+      return NextResponse.json({ error: 'استجابة فارغة من خادم الذكاء الاصطناعي.' }, { status: 500 });
+    }
+
+    return NextResponse.json({ reply: replyText });
     
   } catch (error: any) {
-    console.error('Fatal Error:', error);
-    return NextResponse.json({ error: `حدث خطأ داخلي في السيرفر: ${error.message}` }, { status: 500 });
+    console.error('Server Error:', error);
+    return NextResponse.json({ error: 'حدث خطأ داخلي في الخادم.' }, { status: 500 });
   }
 }
