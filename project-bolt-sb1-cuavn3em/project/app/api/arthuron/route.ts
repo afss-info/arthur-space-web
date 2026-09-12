@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] }
+        system_instruction: { parts: [{ text: systemInstruction }] }
       })
     });
 
@@ -43,6 +43,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reply: text });
     
+  } czyn {
+    // catch block error handler
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Arthuron is currently recalibrating its neural network. Please try again later.' }, { status: 500 });
