@@ -36,6 +36,19 @@ function TeamMemberCard({
 export default function AboutPage() {
   const { t, isRTL } = useLang();
 
+  // النصوص الخاصة بالفريق مدمجة مباشرة لتدعم اللغتين بدون مشاكل في ملفات الترجمة
+  const lailaName = isRTL ? 'ليلى أبو الفضل' : 'Laila Abou Alfadel';
+  const lailaTitle = isRTL ? 'مؤسس مشارك ومدير' : 'CO-FOUNDER & DIRECTOR';
+  const lailaBio = isRTL
+    ? 'أنا شغوفة بجعل علوم الفضاء وتعليم STEM أكثر سهولة للطلاب، خاصة أولئك الذين لديهم وصول محدود للفرص العلمية. مدفوعة باهتمام عميق في الفيزياء الحيوية، طب الفضاء، والأبحاث متعددة التخصصات، أسست "آرثر" لإنشاء مجتمع يقوده الطلاب، ولتحويل الفضول إلى عمل علمي هادف. من خلال البرامج التعليمية، المسابقات، المبادرات البحثية، والإرشاد، أهدف إلى ربط الطلاب بفرص للاستكشاف تتجاوز حدود بيئاتهم المحلية وتمكينهم ليصبحوا العلماء والمبتكرين والمستكشفين الذين يشكلون مستقبل علوم الفضاء.'
+    : 'I am passionate about making space science and STEM education more accessible to students, especially those with limited access to scientific opportunities. Driven by a deep interest in biophysics, space medicine, and interdisciplinary research, I founded Arthur to create a student-led community, growing curiosity into meaningful scientific work. Through educational programs, competitions, research initiatives, and mentorship, I aim to connect students with opportunities to explore beyond the limits of their local environments and empower them to become the scientists, innovators, and explorers shaping the future of space science.';
+
+  const jadName = isRTL ? 'جاد ياسين' : 'Jad Yassin';
+  const jadTitle = isRTL ? 'مؤسس مشارك ومدير' : 'CO-FOUNDER & DIRECTOR';
+  const jadBio = isRTL 
+    ? 'مؤسس مشارك، مهتم بالفيزياء الفلكية وهندسة مهام الفضاء.' 
+    : 'Co-founder, focused on astrophysics and space mission engineering.';
+
   return (
     <div className="page-section" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -57,15 +70,15 @@ export default function AboutPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <TeamMemberCard
-              name={t('about_jad_name')}
-              title={t('about_jad_title')}
-              bio={t('about_jad_bio')}
+              name={jadName}
+              title={jadTitle}
+              bio={jadBio}
               initials="JY"
             />
             <TeamMemberCard
-              name={t('about_laila_name')}
-              title={t('about_laila_title')}
-              bio={t('about_laila_bio')}
+              name={lailaName}
+              title={lailaTitle}
+              bio={lailaBio}
               initials="LA"
             />
           </div>
