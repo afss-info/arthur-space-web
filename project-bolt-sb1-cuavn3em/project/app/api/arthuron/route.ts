@@ -43,8 +43,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reply: text });
     
-  } czyn {
-    // catch block error handler
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Arthuron is currently recalibrating its neural network. Please try again later.' }, { status: 500 });
