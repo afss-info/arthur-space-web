@@ -35,6 +35,9 @@ export async function POST(req: Request) {
     });
 
     if (!response.ok) {
+      // هذا السطر سيكشف لنا خطأ جوجل الحقيقي في سجلات Vercel لو حدث
+      const googleError = await response.text();
+      console.error('Google API Error:', googleError);
       throw new Error('Core sync failed');
     }
 
@@ -44,7 +47,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ reply: text });
     
   } catch (error) {
-    console.error(error);
+    console.error('Arthuron Backend Error:', error);
     return NextResponse.json({ error: 'Arthuron is currently recalibrating its neural network. Please try again later.' }, { status: 500 });
   }
 }
