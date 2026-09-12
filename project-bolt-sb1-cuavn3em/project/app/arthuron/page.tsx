@@ -45,13 +45,14 @@ export default function ArthuronPage() {
       
       const data = await res.json();
       
-      if (data.reply) {
+      if (res.ok && data.reply) {
          setMessages(prev => [...prev, { role: 'arthuron', text: data.reply }]);
       } else {
-         throw new Error('No reply');
+         // سيعرض الآن الخطأ الدقيق القادم من الباك إند
+         setMessages(prev => [...prev, { role: 'arthuron', text: data.error || 'حدث خطأ مجهول في الخادم.' }]);
       }
-    } catch (err) {
-      setMessages(prev => [...prev, { role: 'arthuron', text: isRTL ? 'عذراً، واجهت تداخلاً في الاتصال بقاعدة البيانات. يرجى المحاولة مرة أخرى.' : 'Error: Connection interference detected. Please try your query again.' }]);
+    } catch (err: any) {
+      setMessages(prev => [...prev, { role: 'arthuron', text: `فشل الاتصال بالشبكة: ${err.message}` }]);
     } finally {
       setLoading(false);
     }
