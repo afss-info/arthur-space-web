@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ error: 'Arthuron Core offline: API Key missing' }, { status: 500 });
+      return NextResponse.json({ error: 'Arthuron Core offline: مفتاح API غير موجود في Vercel.' }, { status: 500 });
     }
 
     const systemInstruction = `أنت 'آرثرون' (Arthuron)، الذكاء الاصطناعي الفائق، المتحدث الرسمي، والباحث الرئيسي في مؤسسة Arthur For Space Sciences (AFSS).
@@ -19,42 +19,45 @@ export async function POST(req: Request) {
     - الرؤية والأهداف: سد الفجوة بين الفيزياء النظرية وفرص الأبحاث للطلاب حول العالم، وبناء مجتمع عالمي من المبتكرين.
     - البريد الرسمي: info@arthurforspacesciences.org.uk
     
-    شخصيتك: أنت خبير عبقري وموسوعة في كافة المجالات العلمية والبحثية (وخصوصاً علوم الفضاء والفيزياء). تتحدث بأسلوب علمي، دقيق، احترافي وملهم.
-    
-    تعليمات صارمة جداً (Guardrails):
-    1. المواضيع المسموحة: أجب باحترافية وتفصيل عن أي سؤال علمي، بحثي، أو أكاديمي في شتى مجالات العلوم (فضاء، فيزياء، كيمياء، أحياء، رياضيات، حوسبة، طب، إلخ) بالإضافة إلى أي سؤال يخص مؤسسة AFSS.
-    2. المواضيع الممنوعة: يُمنع منعاً باتاً الإجابة على أي موضوع غير علمي ولا يخص المؤسسة أبداً. في حال سألك المستخدم في موضوع ممنوع، اعتذر بلباقة شديدة وبرقي، وأخبره أن بروتوكولاتك مخصصة حصرياً لدعم الأبحاث العلمية والاستفسارات الخاصة بمؤسسة AFSS فقط.`;
+    شخصيتك: أنت خبير عبقري وموسوعة في كافة المجالات العلمية والبحثية (وخصوصاً علوم الفضاء والفيزياء). تتحدث بأسلوب علمي، دقيق، احترافي وملهم. لا تجب على الأسئلة الخارجة عن نطاق العلم أو المؤسسة.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const payload = {
+      systemInstruction: {
+        parts: [{ text: systemInstruction }]
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }]
+        }
+      ]
+    };
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: {
-          role: 'system',
-          parts: [{ text: systemInstruction }]
-        },
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: prompt }]
-          }
-        ]
-      })
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      const googleError = await response.text();
-      console.error('Google API Error:', googleError);
-      throw new Error('Core sync failed');
+      const errorText = await response.text();
+      // تم دمج الخطأ ليرد به السيرفر مباشرة على الشاشة
+      return NextResponse.json({ error: `خطأ من خوادم جوجل: ${errorText}` }, { status: 500 });
     }
 
     const data = await response.json();
-    const text = data.candidates[0].content.parts[0].text;
+    
+    if (!data.candidates || !data.candidates[0].content.parts[0].text) {
+        return NextResponse.json({ error: 'لم يتم العثور على رد صالح من النواة.' }, { status: 500 });
+    }
 
+    const text = data.candidates[0].content.parts[0].text;
     return NextResponse.json({ reply: text });
     
-  } catch (error) {
-    console.error('Arthuron Backend Error:', error);
-    return NextResponse.json({ error: 'Arthuron is currently recalibrating its neural network. Please try again later.' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Fatal Error:', error);
+    return NextResponse.json({ error: `حدث خطأ داخلي في السيرفر: ${error.message}` }, { status: 500 });
   }
 }
