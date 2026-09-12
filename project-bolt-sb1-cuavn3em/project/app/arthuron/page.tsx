@@ -48,11 +48,10 @@ export default function ArthuronPage() {
       if (res.ok && data.reply) {
          setMessages(prev => [...prev, { role: 'arthuron', text: data.reply }]);
       } else {
-         // سيعرض الآن الخطأ الدقيق القادم من الباك إند
-         setMessages(prev => [...prev, { role: 'arthuron', text: data.error || 'حدث خطأ مجهول في الخادم.' }]);
+         setMessages(prev => [...prev, { role: 'arthuron', text: `خطأ النظام: ${data.error || 'فشل الاتصال'}` }]);
       }
     } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'arthuron', text: `فشل الاتصال بالشبكة: ${err.message}` }]);
+      setMessages(prev => [...prev, { role: 'arthuron', text: `خطأ في الشبكة: ${err.message}` }]);
     } finally {
       setLoading(false);
     }
@@ -62,7 +61,6 @@ export default function ArthuronPage() {
     <div className="page-section min-h-screen flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 flex-1 flex flex-col h-[calc(100vh-100px)]">
         
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-purple-500/40 bg-purple-500/10 mb-4 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
             <BrainCircuit size={16} className="text-purple-400 animate-pulse" />
@@ -72,15 +70,11 @@ export default function ArthuronPage() {
           <p className="text-gray-400 text-sm">Your Advanced Scientific Research Assistant</p>
         </div>
 
-        {/* Chat Interface Container */}
         <div className="flex-1 glass-card border border-purple-500/30 shadow-2xl rounded-2xl flex flex-col overflow-hidden relative bg-slate-950/50 backdrop-blur-xl">
           
-          {/* Chat Messages Area */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
             {messages.map((msg, idx) => (
               <div key={idx} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                
-                {/* Avatar */}
                 <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border ${
                   msg.role === 'arthuron' 
                     ? 'bg-purple-500/20 border-purple-500/50 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]' 
@@ -89,7 +83,6 @@ export default function ArthuronPage() {
                   {msg.role === 'arthuron' ? <BrainCircuit size={20} /> : <Terminal size={20} />}
                 </div>
 
-                {/* Message Bubble */}
                 <div className={`max-w-[80%] rounded-2xl p-5 text-sm leading-relaxed ${
                   msg.role === 'arthuron'
                     ? 'bg-purple-900/10 border border-purple-500/20 text-gray-200'
@@ -105,7 +98,6 @@ export default function ArthuronPage() {
               </div>
             ))}
             
-            {/* Loading Indicator */}
             {loading && (
               <div className={`flex gap-4 ${isRTL ? '' : ''}`}>
                 <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center border bg-purple-500/20 border-purple-500/50 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
@@ -120,7 +112,6 @@ export default function ArthuronPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
           <div className="p-4 border-t border-purple-500/20 bg-black/40">
             <form onSubmit={sendMessage} className="relative flex items-center gap-3 max-w-4xl mx-auto">
               <input 
