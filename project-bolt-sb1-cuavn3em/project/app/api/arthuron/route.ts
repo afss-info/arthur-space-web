@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     ],
   };
 
-  const url = ${GEMINI_ENDPOINT}?key=${apiKey};
+  const url = `${GEMINI_ENDPOINT}?key=${apiKey}`;
 
   let googleResponse: Response;
   try {
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         ? networkError.message
         : "Unknown network error while contacting Google.";
     return NextResponse.json(
-      { error: Network error while calling Gemini API: ${message} },
+      { error: `Network error while calling Gemini API: ${message}` },
       { status: 502 }
     );
   }
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     const errorText = await googleResponse.text();
     return NextResponse.json(
       {
-        error: Gemini API returned ${googleResponse.status} ${googleResponse.statusText}: ${errorText},
+        error: `Gemini API returned ${googleResponse.status} ${googleResponse.statusText}: ${errorText}`,
       },
       { status: googleResponse.status }
     );
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
   if (data.promptFeedback?.blockReason) {
     return NextResponse.json(
       {
-        error: Gemini blocked this prompt. Reason: ${data.promptFeedback.blockReason},
+        error: `Gemini blocked this prompt. Reason: ${data.promptFeedback.blockReason}`,
       },
       { status: 200 }
     );
