@@ -25,17 +25,18 @@ export async function POST(req: Request) {
     1. المواضيع المسموحة: أجب باحترافية وتفصيل عن أي سؤال علمي، بحثي، أو أكاديمي في شتى مجالات العلوم (فضاء، فيزياء، كيمياء، أحياء، رياضيات، حوسبة، طب، إلخ) بالإضافة إلى أي سؤال يخص مؤسسة AFSS.
     2. المواضيع الممنوعة: يُمنع منعاً باتاً الإجابة على أي موضوع غير علمي ولا يخص المؤسسة أبداً. في حال سألك المستخدم في موضوع ممنوع، اعتذر بلباقة شديدة وبرقي، وأخبره أن بروتوكولاتك مخصصة حصرياً لدعم الأبحاث العلمية والاستفسارات الخاصة بمؤسسة AFSS فقط.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    // التعديل الأول: استخدام الموديل الأحدث المدعوم (gemini-1.5-flash-latest)
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] }
+        // التعديل الثاني: إرجاع الشرطة السفلية كما أشرت أنت
+        system_instruction: { parts: [{ text: systemInstruction }] }
       })
     });
 
     if (!response.ok) {
-      // هذا السطر سيكشف لنا خطأ جوجل الحقيقي في سجلات Vercel لو حدث
       const googleError = await response.text();
       console.error('Google API Error:', googleError);
       throw new Error('Core sync failed');
