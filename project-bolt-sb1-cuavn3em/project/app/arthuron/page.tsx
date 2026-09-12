@@ -94,7 +94,6 @@ export default function ArthuronPage() {
                     ? 'bg-purple-900/10 border border-purple-500/20 text-gray-200'
                     : 'bg-blue-900/20 border border-blue-500/20 text-white'
                 }`}>
-                  {/* معالجة النصوص لتبدو مرتبة بدون رموز مزعجة */}
                   {msg.text.split('\n').map((line, i) => (
                     <span key={i}>
                       {line.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')} 
