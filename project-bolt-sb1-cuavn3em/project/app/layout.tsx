@@ -3,6 +3,7 @@ import './globals.css';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { NavBar } from '@/components/NavBar';
 import { Footer } from '@/components/Footer';
+import Starfield from '@/components/Starfield';
 
 export const metadata: Metadata = {
   title: 'Arthur For Space Sciences Ltd',
@@ -23,8 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-[#0a0a0a] text-white min-h-screen">
         <LanguageProvider>
-          <div className="nebula-bg" />
-          <div className="star-field" />
+         <Starfield />
           <NavBar />
           <main className="relative z-10">
             {children}
