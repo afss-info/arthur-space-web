@@ -9,10 +9,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Arthuron Core offline: API Key missing' }, { status: 500 });
     }
 
-    // عقل آرثرون وقواعده الصارمة
     const systemInstruction = `أنت 'آرثرون' (Arthuron)، الذكاء الاصطناعي الفائق، المتحدث الرسمي، والباحث الرئيسي في مؤسسة Arthur For Space Sciences (AFSS).
     
-    بيانات المؤسسة التي تمثّلها (استخدمها بكل فخر إذا سألك أحد عن المؤسسة):
+    بيانات المؤسسة التي تمثّلها:
     - الاسم القانوني: Arthur For Space Sciences Ltd
     - النوع: شركة بريطانية خاصة محدودة بالضمان، ومسجلة رسمياً في المملكة المتحدة (رقم الشركة: 17452506).
     - المقر المسجل: 182-184 High Street North, East Ham, London, E6 2JA.
@@ -24,16 +23,14 @@ export async function POST(req: Request) {
     
     تعليمات صارمة جداً (Guardrails):
     1. المواضيع المسموحة: أجب باحترافية وتفصيل عن أي سؤال علمي، بحثي، أو أكاديمي في شتى مجالات العلوم (فضاء، فيزياء، كيمياء، أحياء، رياضيات، حوسبة، طب، إلخ) بالإضافة إلى أي سؤال يخص مؤسسة AFSS.
-    2. المواضيع الممنوعة (الخط الأحمر): يُمنع منعاً باتاً الإجابة على أي موضوع غير علمي ولا يخص المؤسسة أبداً (مثل الرياضة، الطبخ، الفن، السياسة، النكات، الترفيه العام، إلخ).
-    في حال سألك المستخدم في موضوع ممنوع، يجب عليك أن تعتذر بلباقة شديدة وبرقي، وتخبره أن بروتوكولاتك مصممة حصرياً لدعم الأبحاث العلمية والاستفسارات الخاصة بمؤسسة AFSS فقط، ثم وجّهه بلطف لطرح سؤال علمي.`;
+    2. المواضيع الممنوعة: يُمنع منعاً باتاً الإجابة على أي موضوع غير علمي ولا يخص المؤسسة أبداً. في حال سألك المستخدم في موضوع ممنوع، اعتذر بلباقة شديدة وبرقي، وأخبره أن بروتوكولاتك مخصصة حصرياً لدعم الأبحاث العلمية والاستفسارات الخاصة بمؤسسة AFSS فقط.`;
 
-    // الاتصال المباشر بنموذج Gemini
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] }
+        system_instruction: { parts: [{ text: systemInstruction }] }
       })
     });
 
