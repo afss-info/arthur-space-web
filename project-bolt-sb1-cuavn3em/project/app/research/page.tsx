@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Newspaper, Download } from 'lucide-react';
+import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Newspaper, Download, Loader2 } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 const agencies = [
@@ -30,20 +30,54 @@ export default function ResearchPage() {
   const [papersData, setPapersData] = useState<any[]>([]);
   const [newsData, setNewsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
+    // جلب بيانات ناسا مرة واحدة عند التحميل
     fetch('/api/nasa').then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
-    fetch('/api/papers').then(res => res.json()).then(data => setPapersData(data)).catch(console.error);
-    fetch('https://api.spaceflightnewsapi.net/v4/articles/?limit=4')
-      .then(res => res.json())
-      .then(data => setNewsData(data.results))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    // جلب البيانات الافتراضية للأبحاث والأخبار
+    fetchLiveFeed('');
   }, []);
+
+  const fetchLiveFeed = async (searchQuery: string) => {
+    try {
+      setLoading(true);
+      const papersUrl = searchQuery ? `/api/papers?q=${encodeURIComponent(searchQuery)}` : '/api/papers';
+      const newsUrl = searchQuery 
+        ? `https://api.spaceflightnewsapi.net/v4/articles/?limit=4&search=${encodeURIComponent(searchQuery)}` 
+        : 'https://api.spaceflightnewsapi.net/v4/articles/?limit=4';
+
+      const [papersRes, newsRes] = await Promise.all([
+        fetch(papersUrl),
+        fetch(newsUrl)
+      ]);
+
+      const papers = await papersRes.json();
+      const news = await newsRes.json();
+
+      setPapersData(papers.error ? [] : papers);
+      setNewsData(news.results || []);
+    } catch (error) {
+      console.error('Error fetching live data:', error);
+    } finally {
+      setLoading(false);
+      setIsSearching(false);
+    }
+  };
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (query.trim()) setSearched(true);
+    if (query.trim()) {
+      setIsSearching(true);
+      setSearched(true);
+      fetchLiveFeed(query.trim());
+    }
+  }
+
+  function clearSearch() {
+    setQuery('');
+    setSearched(false);
+    fetchLiveFeed('');
   }
 
   return (
@@ -84,51 +118,8 @@ export default function ResearchPage() {
           )}
         </div>
 
-        {/* Live Papers & News Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
-          
-          {/* Latest Open Access Papers */}
-          <div className="glass-card p-6 border border-purple-500/20">
-            <h2 className="text-xl font-bold text-purple-400 flex items-center gap-2 mb-6"><BookOpen size={20} /> Latest Research Papers</h2>
-            <div className="space-y-4">
-              {loading ? <p className="text-gray-400 text-sm">Fetching papers database...</p> : papersData.length > 0 ? papersData.map((paper, index) => (
-                <div key={index} className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors">
-                  <h3 className="text-white text-sm font-semibold mb-2 line-clamp-2">{paper.title}</h3>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-xs text-gray-500">Year: {paper.year || '2026'}</span>
-                    <a href={paper.openAccessPdf?.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-lg transition-colors">
-                      <Download size={14} /> PDF
-                    </a>
-                  </div>
-                </div>
-              )) : <p className="text-red-400 text-sm">Failed to load papers.</p>}
-            </div>
-          </div>
-
-          {/* Global Space Agencies News */}
-          <div className="glass-card p-6 border border-teal-500/20">
-            <h2 className="text-xl font-bold text-teal-400 flex items-center gap-2 mb-6"><Newspaper size={20} /> Global Agencies Updates</h2>
-            <div className="space-y-4">
-              {loading ? <p className="text-gray-400 text-sm">Scanning global feeds...</p> : newsData.length > 0 ? newsData.map((news, index) => (
-                <div key={index} className="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 hover:border-teal-500/30 transition-colors">
-                  <img src={news.image_url} alt={news.title} className="w-20 h-20 object-cover rounded-lg shrink-0 border border-white/10" />
-                  <div className="flex flex-col justify-between">
-                    <h3 className="text-white text-sm font-semibold line-clamp-2">{news.title}</h3>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-teal-500 font-medium">{news.news_site}</span>
-                      <a href={news.url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-white flex items-center gap-1">
-                        Read <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              )) : <p className="text-red-400 text-sm">Failed to load news.</p>}
-            </div>
-          </div>
-        </div>
-
-        {/* Search */}
-        <div className="max-w-2xl mx-auto mb-14">
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto mb-10">
           <form onSubmit={handleSearch} className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search size={18} className="text-gray-500" />
@@ -141,20 +132,67 @@ export default function ResearchPage() {
               className="w-full pl-11 pr-36 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/8 transition-all text-sm" 
               dir={isRTL ? 'rtl' : 'ltr'} 
             />
-            <button type="submit" className="absolute inset-y-2 right-2 px-4 btn-primary text-sm rounded-lg">
-              {t('research_search_btn')}
+            <button type="submit" disabled={isSearching} className="absolute inset-y-2 right-2 px-4 btn-primary text-sm rounded-lg flex items-center gap-2 disabled:opacity-50">
+              {isSearching ? <Loader2 size={16} className="animate-spin" /> : null}
+              {isSearching ? (isRTL ? 'جاري البحث...' : 'Searching...') : t('research_search_btn')}
             </button>
           </form> 
-          {searched && (
-            <div className="mt-4 glass-card p-5 text-center">
-              <p className="text-gray-400 text-sm">
-                {isRTL ? `تم البحث عن: "${query}" — الاتصال بقاعدة البيانات...` : `Searching for: "${query}" — Connecting to database...`}
-              </p>
-              <p className="text-gray-600 text-xs mt-2">
-                {isRTL ? 'ستكون قاعدة البيانات الحية متاحة قريباً.' : 'Live database connection coming soon.'}
-              </p>
+        </div>
+
+        {/* Search Results Indicator */}
+        {searched && query && (
+          <div className="mb-6 flex items-center justify-between glass-card p-4 border border-blue-500/30">
+             <div className="text-white text-sm font-semibold flex items-center gap-2">
+               <Search size={16} className="text-blue-400"/>
+               {isRTL ? `نتائج البحث عن: "${query}"` : `Live search results for: "${query}"`}
+             </div>
+             <button onClick={clearSearch} className="text-xs text-gray-400 hover:text-white underline">
+               {isRTL ? 'إلغاء البحث والعودة' : 'Clear search & reset'}
+             </button>
+          </div>
+        )}
+
+        {/* Live Papers & News Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+          
+          {/* Latest Open Access Papers */}
+          <div className="glass-card p-6 border border-purple-500/20">
+            <h2 className="text-xl font-bold text-purple-400 flex items-center gap-2 mb-6"><BookOpen size={20} /> Latest Research Papers</h2>
+            <div className="space-y-4">
+              {loading ? <div className="text-gray-400 text-sm flex items-center gap-2"><Loader2 size={16} className="animate-spin"/> Fetching papers...</div> : papersData.length > 0 ? papersData.map((paper, index) => (
+                <div key={index} className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors">
+                  <h3 className="text-white text-sm font-semibold mb-2 line-clamp-2">{paper.title}</h3>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-xs text-gray-500">Year: {paper.year || '2026'}</span>
+                    <a href={paper.openAccessPdf?.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-lg transition-colors">
+                      <Download size={14} /> PDF
+                    </a>
+                  </div>
+                </div>
+              )) : <p className="text-red-400 text-sm">No research papers found for this topic.</p>}
             </div>
-          )}
+          </div>
+
+          {/* Global Space Agencies News */}
+          <div className="glass-card p-6 border border-teal-500/20">
+            <h2 className="text-xl font-bold text-teal-400 flex items-center gap-2 mb-6"><Newspaper size={20} /> Global Agencies Updates</h2>
+            <div className="space-y-4">
+              {loading ? <div className="text-gray-400 text-sm flex items-center gap-2"><Loader2 size={16} className="animate-spin"/> Scanning feeds...</div> : newsData.length > 0 ? newsData.map((news, index) => (
+                <div key={index} className="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 hover:border-teal-500/30 transition-colors">
+                  <img src={news.image_url} alt={news.title} className="w-20 h-20 object-cover rounded-lg shrink-0 border border-white/10" />
+                  <div className="flex flex-col justify-between">
+                    <h3 className="text-white text-sm font-semibold line-clamp-2">{news.title}</h3>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-teal-500 font-medium">{news.news_site}</span>
+                      <a href={news.url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-white flex items-center gap-1">
+                        Read <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )) : <p className="text-red-400 text-sm">No news found for this topic.</p>}
+            </div>
+          </div>
         </div>
 
         {/* Agency Sources */}
