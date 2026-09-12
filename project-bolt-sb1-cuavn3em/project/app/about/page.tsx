@@ -38,7 +38,7 @@ export default function AboutPage() {
 
   // النصوص الخاصة بفريق المؤسسة (تدعم اللغتين العربية والإنجليزية بتبديل ديناميكي دقيق)
   const jadName = isRTL ? 'جاد ياسين' : 'Jad Yassin';
-  const jadTitle = isRTL ? 'مؤسس مشارك ومدير' : 'Co-Founder & Director';
+  const jadTitle = isRTL ? 'مؤسس مشارك ومدير' : 'CO-FOUNDER & DIRECTOR';
   const jadBio = isRTL 
     ? 'بصفتي باحثاً شغوفاً بالفيزياء الفلكية وهندسة أنظمة الفضاء، أكرس جهودي لتوسيع آفاق تعليم علوم الفضاء. مدفوعاً باهتمام عميق بتوصيف الكواكب الخارجية وتصميم مهام الفضاء، أسست "آرثر لعلوم الفضاء" لسد الفجوة بين الفيزياء النظرية وفرص الأبحاث المتاحة للطلاب حول العالم. رؤيتي هي بناء مجتمع عالمي من المبتكرين الذين سيقودون الجيل القادم من استكشاف الفضاء.'
     : 'As a passionate researcher in astrophysics and space systems engineering, I dedicate my efforts to expanding the horizons of space science education. Driven by a deep interest in exoplanet characterization and space mission design, I founded Arthur For Space Sciences to bridge the gap between theoretical physics and research opportunities available to students worldwide. My vision is to build a global community of innovators who will lead the next generation of space exploration.';
