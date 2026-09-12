@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        system_instruction: { parts: [{ text: systemInstruction }] }
+        systemInstruction: { parts: [{ text: systemInstruction }] }
       })
     });
 
