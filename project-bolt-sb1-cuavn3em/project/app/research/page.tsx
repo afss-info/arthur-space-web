@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink } from 'lucide-react';
+import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Newspaper, Download } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 const agencies = [
@@ -24,20 +24,21 @@ export default function ResearchPage() {
   const { t, isRTL } = useLang();
   const [query, setQuery] = useState('');
   const [searched, setSearched] = useState(false);
+  
+  // States for live data
   const [nasaData, setNasaData] = useState<any>(null);
+  const [papersData, setPapersData] = useState<any[]>([]);
+  const [newsData, setNewsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/nasa')
-      .then((res) => res.json())
-      .then((data) => {
-        setNasaData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching NASA data:', err);
-        setLoading(false);
-      });
+    fetch('/api/nasa').then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
+    fetch('/api/papers').then(res => res.json()).then(data => setPapersData(data)).catch(console.error);
+    fetch('https://api.spaceflightnewsapi.net/v4/articles/?limit=4')
+      .then(res => res.json())
+      .then(data => setNewsData(data.results))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   function handleSearch(e: React.FormEvent) {
@@ -59,33 +60,71 @@ export default function ResearchPage() {
           <p className="text-gray-400 max-w-2xl mx-auto">{t('research_subtitle')}</p>
         </div>
 
-        {/* NASA Live APOD Feed Section */}
-        <div className="glass-card p-6 md:p-8 mb-14 border border-blue-500/30 shadow-2xl">
+        {/* NASA Live APOD Feed */}
+        <div className="glass-card p-6 md:p-8 mb-10 border border-blue-500/30 shadow-2xl relative overflow-hidden">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-blue-400">NASA Astronomy Picture of the Day</h2>
-            <span className="text-xs bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30">Live API</span>
+            <span className="text-xs bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span> Live API
+            </span>
           </div>
-
-          {loading ? (
-            <div className="text-center py-12 text-gray-400 animate-pulse">جاري جلب أحدث صورة وبيانات حية من ناسا...</div>
-          ) : nasaData && !nasaData.error ? (
+          {nasaData && !nasaData.error ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="overflow-hidden rounded-xl border border-white/10">
-                <img 
-                  src={nasaData.url} 
-                  alt={nasaData.title} 
-                  className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
-                />
+                <img src={nasaData.url} alt={nasaData.title} className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" />
               </div>
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold text-white">{nasaData.title}</h3>
                 <p className="text-xs text-blue-300">{nasaData.date}</p>
-                <p className="text-gray-300 text-sm leading-relaxed">{nasaData.explanation}</p>
+                <p className="text-gray-300 text-sm leading-relaxed max-h-48 overflow-y-auto pr-2 custom-scrollbar">{nasaData.explanation}</p>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-red-400 text-sm">تعذر جلب البيانات الحية من ناسا. تأكد من صحة المفتاح في Vercel.</div>
+            <div className="text-center py-8 text-gray-400">جاري جلب أحدث صورة وبيانات حية من ناسا...</div>
           )}
+        </div>
+
+        {/* Live Papers & News Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+          
+          {/* Latest Open Access Papers */}
+          <div className="glass-card p-6 border border-purple-500/20">
+            <h2 className="text-xl font-bold text-purple-400 flex items-center gap-2 mb-6"><BookOpen size={20} /> Latest Research Papers</h2>
+            <div className="space-y-4">
+              {loading ? <p className="text-gray-400 text-sm">Fetching papers database...</p> : papersData.length > 0 ? papersData.map((paper, index) => (
+                <div key={index} className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors">
+                  <h3 className="text-white text-sm font-semibold mb-2 line-clamp-2">{paper.title}</h3>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-xs text-gray-500">Year: {paper.year || '2026'}</span>
+                    <a href={paper.openAccessPdf?.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 bg-purple-500/10 px-3 py-1.5 rounded-lg transition-colors">
+                      <Download size={14} /> PDF
+                    </a>
+                  </div>
+                </div>
+              )) : <p className="text-red-400 text-sm">Failed to load papers.</p>}
+            </div>
+          </div>
+
+          {/* Global Space Agencies News */}
+          <div className="glass-card p-6 border border-teal-500/20">
+            <h2 className="text-xl font-bold text-teal-400 flex items-center gap-2 mb-6"><Newspaper size={20} /> Global Agencies Updates</h2>
+            <div className="space-y-4">
+              {loading ? <p className="text-gray-400 text-sm">Scanning global feeds...</p> : newsData.length > 0 ? newsData.map((news, index) => (
+                <div key={index} className="p-4 rounded-xl bg-white/5 border border-white/10 flex gap-4 hover:border-teal-500/30 transition-colors">
+                  <img src={news.image_url} alt={news.title} className="w-20 h-20 object-cover rounded-lg shrink-0 border border-white/10" />
+                  <div className="flex flex-col justify-between">
+                    <h3 className="text-white text-sm font-semibold line-clamp-2">{news.title}</h3>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-teal-500 font-medium">{news.news_site}</span>
+                      <a href={news.url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-white flex items-center gap-1">
+                        Read <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )) : <p className="text-red-400 text-sm">Failed to load news.</p>}
+            </div>
+          </div>
         </div>
 
         {/* Search */}
