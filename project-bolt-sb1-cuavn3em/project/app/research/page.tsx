@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
@@ -24,6 +24,21 @@ export default function ResearchPage() {
   const { t, isRTL } = useLang();
   const [query, setQuery] = useState('');
   const [searched, setSearched] = useState(false);
+  const [nasaData, setNasaData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/nasa')
+      .then((res) => res.json())
+      .then((data) => {
+        setNasaData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching NASA data:', err);
+        setLoading(false);
+      });
+  }, []);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -33,6 +48,7 @@ export default function ResearchPage() {
   return (
     <div className="page-section" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 mb-6">
@@ -43,39 +59,60 @@ export default function ResearchPage() {
           <p className="text-gray-400 max-w-2xl mx-auto">{t('research_subtitle')}</p>
         </div>
 
+        {/* NASA Live APOD Feed Section */}
+        <div className="glass-card p-6 md:p-8 mb-14 border border-blue-500/30 shadow-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-blue-400">NASA Astronomy Picture of the Day</h2>
+            <span className="text-xs bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30">Live API</span>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12 text-gray-400 animate-pulse">جاري جلب أحدث صورة وبيانات حية من ناسا...</div>
+          ) : nasaData && !nasaData.error ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div className="overflow-hidden rounded-xl border border-white/10">
+                <img 
+                  src={nasaData.url} 
+                  alt={nasaData.title} 
+                  className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-white">{nasaData.title}</h3>
+                <p className="text-xs text-blue-300">{nasaData.date}</p>
+                <p className="text-gray-300 text-sm leading-relaxed">{nasaData.explanation}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-red-400 text-sm">تعذر جلب البيانات الحية من ناسا. تأكد من صحة المفتاح في Vercel.</div>
+          )}
+        </div>
+
         {/* Search */}
         <div className="max-w-2xl mx-auto mb-14">
           <form onSubmit={handleSearch} className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search size={18} className="text-gray-500" />
             </div>
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder={t('research_search_placeholder')}
-              className="w-full pl-11 pr-36 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/8 transition-all text-sm"
-              dir={isRTL ? 'rtl' : 'ltr'}
+            <input 
+              type="text" 
+              value={query} 
+              onChange={e => setQuery(e.target.value)} 
+              placeholder={t('research_search_placeholder')} 
+              className="w-full pl-11 pr-36 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:bg-white/8 transition-all text-sm" 
+              dir={isRTL ? 'rtl' : 'ltr'} 
             />
-            <button
-              type="submit"
-              className="absolute inset-y-2 right-2 px-4 btn-primary text-sm rounded-lg"
-            >
+            <button type="submit" className="absolute inset-y-2 right-2 px-4 btn-primary text-sm rounded-lg">
               {t('research_search_btn')}
             </button>
-          </form>
-
+          </form> 
           {searched && (
             <div className="mt-4 glass-card p-5 text-center">
               <p className="text-gray-400 text-sm">
-                {isRTL
-                  ? `تم البحث عن: "${query}" — الاتصال بقاعدة البيانات...`
-                  : `Searching for: "${query}" — Connecting to database...`}
+                {isRTL ? `تم البحث عن: "${query}" — الاتصال بقاعدة البيانات...` : `Searching for: "${query}" — Connecting to database...`}
               </p>
               <p className="text-gray-600 text-xs mt-2">
-                {isRTL
-                  ? 'ستكون قاعدة البيانات الحية متاحة قريباً.'
-                  : 'Live database connection coming soon.'}
+                {isRTL ? 'ستكون قاعدة البيانات الحية متاحة قريباً.' : 'Live database connection coming soon.'}
               </p>
             </div>
           )}
@@ -86,15 +123,8 @@ export default function ResearchPage() {
           <h2 className="text-sm font-semibold tracking-widest uppercase text-gray-500 mb-5">{t('research_sources_title')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {agencies.map(agency => (
-              <div
-                key={agency.name}
-                className="glass-card p-5 text-center group cursor-default"
-                style={{ borderColor: `${agency.color}25` }}
-              >
-                <div
-                  className="text-2xl font-black tracking-wider mb-2"
-                  style={{ color: agency.color === '#1e40af' ? '#60a5fa' : agency.color === '#1d4ed8' ? '#93c5fd' : agency.color === '#0f766e' ? '#34d399' : '#f87171' }}
-                >
+              <div key={agency.name} className="glass-card p-5 text-center group cursor-default" style={{ borderColor: `${agency.color}25` }}>
+                <div className="text-2xl font-black tracking-wider mb-2" style={{ color: agency.color === '#1e40af' ? '#60a5fa' : agency.color === '#1d4ed8' ? '#93c5fd' : agency.color === '#0f766e' ? '#34d399' : '#f87171' }}>
                   {agency.name}
                 </div>
                 <div className="text-gray-500 text-[10px] leading-snug">{agency.desc}</div>
@@ -126,6 +156,7 @@ export default function ResearchPage() {
           <ExternalLink size={14} className="text-gray-600 shrink-0 mt-0.5" />
           <p className="text-gray-600 text-xs leading-relaxed">{t('research_note')}</p>
         </div>
+
       </div>
     </div>
   );
