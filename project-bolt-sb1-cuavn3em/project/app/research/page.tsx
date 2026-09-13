@@ -34,7 +34,7 @@ export default function ResearchPage() {
 
   useEffect(() => {
     // جلب بيانات ناسا مرة واحدة عند التحميل
-    fetch('/api/nasa').then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
+    fetch('/api/nasa', { cache: 'no-store' }).then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
     // جلب البيانات الافتراضية للأبحاث والأخبار
     fetchLiveFeed('');
   }, []);
