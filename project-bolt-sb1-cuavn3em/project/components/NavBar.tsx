@@ -15,6 +15,7 @@ const navKeys = [
   { key: 'nav_partnerships' as const, href: '/partnerships' },
   { key: 'nav_portals' as const, href: '/portals' },
   { key: 'nav_arthuron' as const, href: '/arthuron' },
+  { key: 'nav_blog' as const, href: '/blog' },
   { key: 'nav_donate' as const, href: '/donate' },
 ];
 
