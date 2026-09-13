@@ -10,6 +10,7 @@ export const translations = {
     nav_partnerships: 'Partnerships',
     nav_portals: 'Portals',
     nav_arthuron: 'Arthuron',
+    nav_donate: 'Donations',
     nav_tagline: 'STILL. AWARE.',
 
     // Home
@@ -129,6 +130,7 @@ export const translations = {
     nav_partnerships: 'الشراكات',
     nav_portals: 'البوابات',
     nav_arthuron: 'آرثرون',
+    nav_donate: 'التبرعات',
     nav_tagline: 'ثابتون. واعون.',
 
     // Home
