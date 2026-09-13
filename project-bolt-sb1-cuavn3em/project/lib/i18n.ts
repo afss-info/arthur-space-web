@@ -11,6 +11,7 @@ export const translations = {
     nav_portals: 'Portals',
     nav_arthuron: 'Arthuron',
     nav_donate: 'Donations',
+    nav_blog: 'Blog',
     nav_tagline: 'STILL. AWARE.',
 
     // Home
@@ -131,6 +132,7 @@ export const translations = {
     nav_portals: 'البوابات',
     nav_arthuron: 'آرثرون',
     nav_donate: 'التبرعات',
+    nav_blog: 'المدونة',
     nav_tagline: 'ثابتون. واعون.',
 
     // Home
