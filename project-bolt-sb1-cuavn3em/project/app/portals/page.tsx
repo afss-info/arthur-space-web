@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { GraduationCap, UserCog, ArrowRight, Shield } from 'lucide-react';
+import { GraduationCap, UserCog, ArrowRight, Shield, RadioTower } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 export default function PortalsPage() {
@@ -50,6 +50,21 @@ export default function PortalsPage() {
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>
+          {/* Media Portal */}
+        <Link href="/portals/media" className="glass-card p-10 flex flex-col items-center text-center gap-5 hover:border-blue-500/40 hover:bg-white/5 transition-all duration-300 group glow-blue">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600/30 to-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <RadioTower size={36} className="text-blue-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">{isRTL ? 'بوابة فريق الإعلام' : 'Media / Comm Portal'}</h2>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              {isRTL ? 'الوصول إلى لوحة تحكم الإعلام لنشر وتعديل الأخبار الرسمية للمدونة.' : 'Access media dashboard to publish, edit, and manage official news and blog posts.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-blue-300 px-6 py-2.5 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 transition-all mt-2">
+            {t('portals_enter_btn')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
         </div>
       </div>
     </div>
