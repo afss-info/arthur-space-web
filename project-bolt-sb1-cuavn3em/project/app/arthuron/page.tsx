@@ -31,11 +31,11 @@ export default function ArthuronPage() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    // إضافة رسالة المستخدم
+    // 1. إضافة رسالة المستخدم إلى الشاشة
     const newUserMsg = {
       id: Date.now(),
       role: 'user',
@@ -43,25 +43,50 @@ export default function ArthuronPage() {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages(prev => [...prev, newUserMsg]);
+    
+    // حفظ النص قبل مسح مربع الإدخال لإرساله للسيرفر
+    const currentMessage = inputValue; 
     setInputValue('');
     setIsTyping(true);
 
-    // محاكاة تفكير آرثرون (هنا ستربطه لاحقاً بـ API جوجل الفعلي)
-    setTimeout(() => {
+    try {
+      // 2. الاتصال الفعلي بسيرفر آرثرون (API)
+      const response = await fetch('/api/arthuron', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // تم استخدام 'prompt' ليتطابق مع كود السيرفر الخاص بك
+        body: JSON.stringify({ prompt: currentMessage }) 
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.json();
+      
+      // 3. عرض رد جيميناي الحقيقي على الشاشة (باستخدام 'reply' كما برمجتها في السيرفر)
       const newAiMsg = {
         id: Date.now() + 1,
         role: 'ai',
-        text: isRTL 
-          ? 'تم استلام البيانات. جاري تحليل المعطيات الفضائية عبر نواة آرثرون... (سيتم ربط هذا الرد الفعلي بالخادم قريباً).'
-          : 'Data received. Analyzing spatial parameters through Arthuron core... (Real response will be connected to the server soon).',
+        text: data.reply || (isRTL ? 'لم يتم استلام رد من السيرفر.' : 'No response received.'),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
+      
       setMessages(prev => [...prev, newAiMsg]);
-      setIsTyping(false);
-    }, 2000);
-  };
 
-  return (
+    } catch (error) {
+      console.error("Error communicating with Arthuron API:", error);
+      const errorMsg = {
+        id: Date.now() + 1,
+        role: 'ai',
+        text: isRTL ? 'عذراً، حدث خطأ في الاتصال بالخادم المركزي. يرجى المحاولة لاحقاً.' : 'Connection to the central server failed. Please try again later.',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 flex flex-col items-center relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* Background Animated Elements (Space Vibes) */}
