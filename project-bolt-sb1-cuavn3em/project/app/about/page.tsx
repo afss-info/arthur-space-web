@@ -189,10 +189,7 @@ export default function AboutPage() {
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/20 to-transparent w-full h-full animate-scanline pointer-events-none rounded-lg"></div>
                     
                     {/* صورة الترخيص مع فلاتر تحويلها لهولوغرام أزرق */}
-                    <img 
-                      src="/certificate.jpg" 
-                      alt="UK Certificate of Incorporation Hologram" 
-                      className="w-full max-w-sm rounded-sm mix-blend-screen opacity-85 filter contrast-125 sepia-[.4] hue-rotate-[180deg] saturate-150 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]"
+                    <img src="/certificate.jpg" alt="UK Certificate of Incorporation Hologram" className="w-full max-w-sm rounded-sm invert mix-blend-screen opacity-85 filter contrast-125 sepia-[.4] hue-rotate-[180deg] saturate-150 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
                     />
                     
                     {/* زوايا تصويب سيبرانية للشهادة */}
