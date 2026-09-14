@@ -166,12 +166,12 @@ export default function BlogPage() {
               {/* عرض الوسائط بشكل كبير وسينمائي */}
               {selectedPost.media && selectedPost.mediaType === 'video' ? (
                 <div className="w-full bg-black relative border-b border-cyan-500/30">
-                  <video src={selectedPost.media} controls autoPlay className="w-full max-h-[60vh] object-contain" />
+                  <video src={selectedPost.media} controls autoPlay className="w-full max-h-[35vh] object-contain" />
                   <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none"></div>
                 </div>
               ) : selectedPost.media ? (
                 <div className="w-full relative border-b border-cyan-500/30">
-                  <img src={selectedPost.media} alt="Cover" className="w-full max-h-[60vh] object-cover" />
+                  <img src={selectedPost.media} alt="Cover" className="w-full max-h-[35vh] object-cover" />
                   <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none"></div>
                 </div>
               ) : (
