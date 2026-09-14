@@ -161,7 +161,7 @@ export default function BlogPage() {
             </button>
 
             {/* منطقة قابلة للتمرير (Scrollable Content) */}
-            <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-500/50 scrollbar-track-transparent flex-1">
+            <div className="overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-cyan-500/50 scrollbar-track-transparent flex-1">
               
               {/* عرض الوسائط بشكل كبير وسينمائي */}
               {selectedPost.media && selectedPost.mediaType === 'video' ? (
@@ -189,7 +189,7 @@ export default function BlogPage() {
                   {isRTL ? selectedPost.title_ar : selectedPost.title_en}
                 </h2>
                 
-                <div className="w-16 h-1 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full mb-8"></div>
+                <p className="text-gray-200 text-lg sm:text-xl leading-relaxed whitespace-pre-wrap break-words font-medium">
                 
                 <div className="prose prose-invert max-w-none">
                   <p className="text-gray-200 text-lg sm:text-xl leading-relaxed whitespace-pre-wrap font-medium">
