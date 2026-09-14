@@ -59,7 +59,7 @@ const handleSendMessage = async (e: React.FormEvent) => {
         // تم استخدام 'prompt' ليتطابق مع كود السيرفر الخاص بك
         body: JSON.stringify({ prompt: currentMessage }) 
       });
-
+      
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -87,6 +87,7 @@ const handleSendMessage = async (e: React.FormEvent) => {
       setIsTyping(false);
     }
   };
+  return (
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 flex flex-col items-center relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* Background Animated Elements (Space Vibes) */}
