@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Newspaper, Download, Loader2, Crosshair, Activity, Database, Radar, Zap } from 'lucide-react';
+import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Newspaper, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 const agencies = [
@@ -29,12 +29,30 @@ export default function ResearchPage() {
   const [nasaData, setNasaData] = useState<any>(null);
   const [papersData, setPapersData] = useState<any[]>([]);
   const [newsData, setNewsData] = useState<any[]>([]);
+  const [asteroidsData, setAsteroidsData] = useState<any[]>([]);
+  const [issData, setIssData] = useState<any>(null);
+  
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
+    // 1. Fetch APOD
     fetch('/api/nasa', { cache: 'no-store' }).then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
+    
+    // 2. Fetch Asteroids
+    fetch('/api/asteroids').then(res => res.json()).then(data => setAsteroidsData(data.error ? [] : data)).catch(console.error);
+
+    // 3. Fetch ISS Live Telemetry (Polling every 5 seconds)
+    const fetchISS = () => {
+      fetch('/api/iss').then(res => res.json()).then(data => setIssData(data.error ? null : data)).catch(console.error);
+    };
+    fetchISS();
+    const issInterval = setInterval(fetchISS, 5000);
+
+    // 4. Fetch Default Papers & News
     fetchLiveFeed('');
+
+    return () => clearInterval(issInterval); // Cleanup on unmount
   }, []);
 
   const fetchLiveFeed = async (searchQuery: string) => {
@@ -76,7 +94,17 @@ export default function ResearchPage() {
 
   return (
     <div className="page-section relative overflow-hidden bg-[#020617]" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* شبكة خلفية متحركة ببطء (Moving Grid Background) */}
+      
+      {/* ستايلات خارقة مخصصة للرادار وخطوط المسح */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes radar-spin { 100% { transform: rotate(360deg); } }
+        .animate-radar { animation: radar-spin 4s linear infinite; }
+        @keyframes scan-vertical { 0% { transform: translateY(-100%); } 100% { transform: translateY(1000%); } }
+        .animate-scan-vert { animation: scan-vertical 3s linear infinite; }
+        .matrix-glow { text-shadow: 0 0 8px rgba(34,211,238,0.8); }
+      `}} />
+
+      {/* شبكة خلفية متحركة */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02] pointer-events-none animate-pulse-slow"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -86,13 +114,99 @@ export default function ResearchPage() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-32 bg-blue-600/20 blur-[100px] rounded-full pointer-events-none"></div>
           <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-blue-500/40 bg-blue-500/10 mb-6 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
             <Activity size={14} className="text-blue-400 animate-pulse" />
-            <span className="text-blue-300 text-xs font-bold tracking-[0.2em] uppercase">{t('nav_research')} // OBSERVATORY</span>
+            <span className="text-blue-300 text-xs font-bold tracking-[0.2em] uppercase">{t('nav_research')} // COMMAND CENTER</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-600 tracking-tight drop-shadow-[0_0_15px_rgba(59,130,246,0.4)] mb-4">
             {t('research_title')}
           </h1>
           <p className="text-blue-200/60 max-w-2xl mx-auto text-sm sm:text-base tracking-wide font-medium">{t('research_subtitle')}</p>
         </div>
+
+        {/* ===================== NEW: TACTICAL LIVE DISPLAY (ISS + Asteroids) ===================== */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          
+          {/* ISS Tracker */}
+          <div className="relative glass-card border border-cyan-500/30 bg-cyan-950/20 rounded-3xl overflow-hidden p-6 sm:p-8">
+            <div className="absolute inset-0 bg-cyan-500/5 blur-[50px]"></div>
+            <div className="absolute top-0 left-1/2 w-full h-[1px] bg-cyan-400/50 animate-scan-vert opacity-50"></div>
+            
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Satellite className="text-cyan-400 animate-bounce" size={24} />
+                  <h2 className="text-lg font-black text-white tracking-widest uppercase">ISS ORBITAL TELEMETRY</h2>
+                </div>
+                <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-3 py-1 rounded font-mono animate-pulse">LIVE SYNC</span>
+              </div>
+              
+              {issData ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-black/50 border border-cyan-500/20 p-4 rounded-xl flex flex-col gap-1">
+                    <span className="text-cyan-500/70 text-xs font-bold tracking-widest uppercase flex items-center gap-2"><Map size={12}/> LATITUDE</span>
+                    <span className="text-white text-xl sm:text-2xl font-mono matrix-glow">{parseFloat(issData.latitude).toFixed(4)}°</span>
+                  </div>
+                  <div className="bg-black/50 border border-cyan-500/20 p-4 rounded-xl flex flex-col gap-1">
+                    <span className="text-cyan-500/70 text-xs font-bold tracking-widest uppercase flex items-center gap-2"><Navigation size={12}/> LONGITUDE</span>
+                    <span className="text-white text-xl sm:text-2xl font-mono matrix-glow">{parseFloat(issData.longitude).toFixed(4)}°</span>
+                  </div>
+                  <div className="bg-black/50 border border-cyan-500/20 p-4 rounded-xl flex flex-col gap-1 col-span-2">
+                    <span className="text-cyan-500/70 text-xs font-bold tracking-widest uppercase flex items-center gap-2"><Users size={12}/> CREW ONBOARD</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl font-black text-cyan-400">{issData.crewInSpace}</span>
+                      <span className="text-gray-400 text-xs">ASTRONAUTS CURRENTLY IN SPACE</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-cyan-500/50 font-mono text-sm"><Loader2 className="animate-spin mr-2"/> LOCATING STATION...</div>
+              )}
+            </div>
+          </div>
+
+          {/* Asteroid NEO Radar */}
+          <div className="relative glass-card border border-red-500/30 bg-red-950/20 rounded-3xl overflow-hidden p-6 sm:p-8">
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-red-500/20"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-red-500/30"></div>
+             
+             {/* الرادار الدوار */}
+             <div className="absolute top-1/2 left-1/2 origin-bottom -translate-x-1/2 -translate-y-full w-[1px] h-32 bg-gradient-to-t from-red-500 to-transparent animate-radar opacity-70">
+                <div className="absolute top-0 left-0 w-24 h-full bg-gradient-to-r from-red-500/20 to-transparent transform -skew-x-[30deg] origin-bottom-left"></div>
+             </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Radar className="text-red-400" size={24} />
+                  <h2 className="text-lg font-black text-white tracking-widest uppercase">NEAR-EARTH OBJECTS (NEO)</h2>
+                </div>
+                <span className="text-[10px] bg-red-500/20 text-red-300 border border-red-500/40 px-3 py-1 rounded font-mono">TODAY'S FLYBYS</span>
+              </div>
+
+              <div className="space-y-3">
+                {asteroidsData.length > 0 ? asteroidsData.map((ast, i) => (
+                  <div key={i} className="bg-black/60 border border-red-500/20 p-3 rounded-lg flex items-center justify-between hover:border-red-500/50 transition-colors backdrop-blur-sm">
+                    <div>
+                      <div className="text-white font-bold text-sm flex items-center gap-2">
+                        {ast.name}
+                        {ast.isHazardous ? <Skull size={12} className="text-red-500 animate-pulse"/> : <Shield size={12} className="text-green-500"/>}
+                      </div>
+                      <div className="text-gray-400 text-xs font-mono mt-1">SPEED: {ast.speed} km/s | SIZE: ~{ast.size}m</div>
+                    </div>
+                    <div className="text-right">
+                       <div className={`text-[10px] font-black tracking-widest uppercase ${ast.isHazardous ? 'text-red-500' : 'text-green-500'}`}>
+                         {ast.isHazardous ? 'HAZARD' : 'SAFE'}
+                       </div>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="text-red-500/50 font-mono text-sm text-center py-10"><Loader2 className="animate-spin inline mr-2"/> SCANNING SECTOR...</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* ========================================================================================= */}
+
 
         {/* NASA Live APOD Feed - الشاشة السينمائية الكبرى */}
         <div className="relative mb-20 group">
@@ -101,8 +215,7 @@ export default function ResearchPage() {
           )}
           
           <div className="relative glass-card border border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.15)] rounded-3xl overflow-hidden bg-black/60 backdrop-blur-2xl p-1">
-            {/* شريط المسح العلوي */}
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50 animate-scanline"></div>
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50 animate-pulse"></div>
 
             <div className="p-6 md:p-10">
               <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
@@ -111,20 +224,15 @@ export default function ResearchPage() {
                     <Telescope className="text-blue-400" size={20} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-white tracking-widest uppercase">NASA APOD <span className="hidden sm:inline text-blue-500/50">| ASTRONOMY PICTURE OF THE DAY</span></h2>
-                    <p className="text-xs text-blue-400 font-mono">LIVE API UPLINK ESTABLISHED</p>
+                    <h2 className="text-lg font-bold text-white tracking-widest uppercase">DEEP SPACE OBSERVATORY <span className="hidden sm:inline text-blue-500/50">| APOD</span></h2>
+                    <p className="text-xs text-blue-400 font-mono">NASA SECURE UPLINK</p>
                   </div>
                 </div>
-                <span className="text-xs font-bold bg-cyan-500/10 text-cyan-400 px-4 py-1.5 rounded-full border border-cyan-500/30 flex items-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> LIVE
-                </span>
               </div>
 
               {nasaData && !nasaData.error ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-                  {/* حاوية الصورة/الفيديو السيبرانية */}
                   <div className="relative rounded-2xl overflow-hidden border border-white/10 group-hover:border-blue-500/50 transition-colors duration-500 bg-black shadow-[0_0_30px_rgba(0,0,0,0.8)] aspect-video">
-                    {/* زوايا التصويب المضيئة */}
                     <Crosshair className="absolute top-4 left-4 text-cyan-500/70 z-20 pointer-events-none" size={24} />
                     <Crosshair className="absolute bottom-4 right-4 text-cyan-500/70 z-20 pointer-events-none transform rotate-180" size={24} />
                     
@@ -135,10 +243,9 @@ export default function ResearchPage() {
                     )}
                   </div>
                   
-                  {/* شاشة البيانات الوصفية */}
                   <div className="space-y-5 bg-blue-950/20 p-6 rounded-2xl border border-blue-500/10">
                     <div>
-                      <div className="text-cyan-400 text-xs font-mono mb-2 flex items-center gap-2"><Database size={12}/> ENTRY: {nasaData.date}</div>
+                      <div className="text-cyan-400 text-xs font-mono mb-2 flex items-center gap-2"><Database size={12}/> LOG DATE: {nasaData.date}</div>
                       <h3 className="text-3xl font-black text-white leading-tight drop-shadow-md">{nasaData.title}</h3>
                     </div>
                     <div className="h-px w-full bg-gradient-to-r from-blue-500/50 to-transparent"></div>
@@ -157,7 +264,7 @@ export default function ResearchPage() {
           </div>
         </div>
 
-        {/* Search Bar - سطر الأوامر */}
+        {/* Search Bar - سطر الأوامر السيبراني */}
         <div className="max-w-3xl mx-auto mb-16 relative z-20">
           <form onSubmit={handleSearch} className="relative group">
             <div className="absolute inset-0 bg-purple-600/20 blur-xl rounded-2xl transition-opacity opacity-0 group-focus-within:opacity-100"></div>
@@ -169,13 +276,13 @@ export default function ResearchPage() {
                 type="text" 
                 value={query} 
                 onChange={e => setQuery(e.target.value)} 
-                placeholder={isRTL ? "أدخل أمر البحث عن أوراق بحثية أو أخبار الفضاء..." : "QUERY DATABASE: Enter topic, e.g., 'Exoplanets'"} 
+                placeholder={isRTL ? "أدخل أمر البحث عن أوراق بحثية أو أخبار..." : "QUERY GLOBAL DATABASE: Enter topic, e.g., 'Exoplanets'"} 
                 className="w-full bg-transparent border-none text-white placeholder-gray-600 focus:outline-none focus:ring-0 text-sm sm:text-base py-3 px-2 font-mono" 
                 dir={isRTL ? 'rtl' : 'ltr'} 
               />
               <button type="submit" disabled={isSearching} className="ml-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold tracking-widest uppercase rounded-xl flex items-center gap-2 disabled:opacity-50 transition-colors shadow-[0_0_15px_rgba(147,51,234,0.4)]">
                 {isSearching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-                <span className="hidden sm:inline">{isSearching ? 'SCANNING...' : 'EXECUTE'}</span>
+                <span className="hidden sm:inline">{isSearching ? 'DECRYPTING...' : 'EXECUTE'}</span>
               </button>
             </div>
           </form> 
@@ -211,18 +318,16 @@ export default function ResearchPage() {
                   <div className="text-purple-400 font-mono text-sm flex items-center justify-center gap-3 py-10"><Loader2 size={20} className="animate-spin"/> DECRYPTING FILES...</div>
                 ) : papersData.length > 0 ? papersData.map((paper, index) => (
                   <div key={index} className="relative p-5 rounded-xl bg-purple-900/10 border border-purple-500/20 hover:border-purple-400/60 hover:bg-purple-900/20 transition-all duration-300 flex flex-col justify-between group/card overflow-hidden">
-                    {/* شريط الإضاءة الجانبي */}
                     <div className="absolute top-0 left-0 w-1 h-full bg-purple-500/50 group-hover/card:bg-purple-400 transition-colors"></div>
-                    
                     <h3 className="text-white text-sm font-bold mb-4 line-clamp-2 leading-relaxed ml-2">{paper.title}</h3>
                     <div className="flex items-center justify-between ml-2">
                       <span className="text-[10px] font-mono text-purple-300/60 uppercase tracking-widest bg-black/50 px-2 py-1 rounded">PUB: {paper.year || '2026'}</span>
                       <a href={paper.openAccessPdf?.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg transition-colors shadow-[0_0_10px_rgba(147,51,234,0.3)]">
-                        <Download size={14} /> EXTRACT PDF
+                        <Download size={14} /> EXTRACT
                       </a>
                     </div>
                   </div>
-                )) : <p className="text-red-400/80 font-mono text-sm py-5 text-center">ERR: NO DATA FOUND IN MAINFRAME.</p>}
+                )) : <p className="text-red-400/80 font-mono text-sm py-5 text-center">ERR: NO DATA FOUND.</p>}
               </div>
             </div>
           </div>
@@ -232,13 +337,13 @@ export default function ResearchPage() {
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-teal-500/10 blur-[60px] pointer-events-none group-hover:bg-teal-500/20 transition-colors"></div>
             <div className="bg-black/40 backdrop-blur-md p-6 sm:p-8 rounded-[22px] h-full">
                <div className="flex items-center gap-4 mb-8 border-b border-teal-500/20 pb-4">
-                <Radar size={24} className="text-teal-400 animate-spin-slow" />
-                <h2 className="text-xl font-black text-white tracking-widest uppercase">Live Radar Feed</h2>
+                <Globe size={24} className="text-teal-400 animate-pulse" />
+                <h2 className="text-xl font-black text-white tracking-widest uppercase">Global Transmissions</h2>
               </div>
 
               <div className="space-y-4">
                 {loading ? (
-                  <div className="text-teal-400 font-mono text-sm flex items-center justify-center gap-3 py-10"><Loader2 size={20} className="animate-spin"/> SCANNING FREQUENCIES...</div>
+                  <div className="text-teal-400 font-mono text-sm flex items-center justify-center gap-3 py-10"><Loader2 size={20} className="animate-spin"/> INTERCEPTING SIGNALS...</div>
                 ) : newsData.length > 0 ? newsData.map((news, index) => (
                   <div key={index} className="p-4 rounded-xl bg-teal-900/10 border border-teal-500/20 flex gap-5 hover:border-teal-400/60 hover:bg-teal-900/20 transition-all duration-300 group/news">
                     <div className="relative shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-teal-500/30">
@@ -261,52 +366,7 @@ export default function ResearchPage() {
           </div>
         </div>
 
-        {/* Agency Sources - تصاريح الوكالات */}
-        <section className="mb-20">
-          <div className="flex items-center gap-4 mb-8">
-            <h2 className="text-sm font-bold tracking-[0.2em] uppercase text-gray-500 flex items-center gap-2"><Shield className="text-blue-500/50" size={16}/> AUTHORIZED DATA SOURCES</h2>
-            <div className="h-px bg-gradient-to-r from-gray-800 to-transparent flex-1"></div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {agencies.map(agency => (
-              <div key={agency.name} className="relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/30 transition-all duration-300 group cursor-default overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 opacity-10 group-hover:opacity-20 transition-opacity blur-xl rounded-full" style={{ backgroundColor: agency.color }}></div>
-                <div className="text-3xl font-black tracking-widest mb-2 drop-shadow-md transition-colors" style={{ color: agency.color }}>
-                  {agency.name}
-                </div>
-                <div className="text-gray-400 text-[10px] font-bold tracking-widest uppercase leading-snug">{agency.desc}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured Research Areas - اللوحات البحثية */}
-        <section className="mb-16">
-          <div className="flex items-center gap-4 mb-8">
-            <h2 className="text-sm font-bold tracking-[0.2em] uppercase text-gray-500 flex items-center gap-2"><Atom className="text-purple-500/50" size={16}/> FOCUS PROTOCOLS</h2>
-            <div className="h-px bg-gradient-to-r from-gray-800 to-transparent flex-1"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {featuredAreas.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="glass-card p-6 flex flex-col gap-4 border border-white/5 hover:border-purple-500/40 hover:bg-purple-900/10 transition-all duration-300 group rounded-2xl">
-                <div className="w-12 h-12 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center group-hover:border-purple-500/50 group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all">
-                  <Icon size={22} className="text-gray-400 group-hover:text-purple-400 transition-colors" />
-                </div>
-                <div>
-                  <div className="text-white text-base font-bold mb-2 tracking-wide">{title}</div>
-                  <div className="text-gray-400 text-xs leading-relaxed font-medium">{desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
       </div>
     </div>
   );
 }
-
-// Dummy icon to fix missing import error without breaking lucide
-const Shield = ({ className, size }: { className?: string, size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-);
