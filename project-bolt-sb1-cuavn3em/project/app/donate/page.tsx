@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Heart, Landmark, ShieldAlert, Sparkles, Globe, MapPin, Network, Activity, BookOpen, Rocket, Fingerprint, Lock } from 'lucide-react';
+import { Heart, Landmark, ShieldAlert, Sparkles, Globe, MapPin, Network, Activity, BookOpen, Rocket, Fingerprint, Lock, Terminal } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 export default function DonatePage() {
@@ -31,7 +31,6 @@ export default function DonatePage() {
   ];
 
   return (
-    // الخلفية شفافة للسماح لنجوم الموقع الأصلية بالسطوع
     <div className="page-section min-h-screen py-20 relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* المؤثرات الحركية (CSS) */}
