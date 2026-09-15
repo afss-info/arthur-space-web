@@ -142,7 +142,7 @@ export default function ResearchPage() {
         {/* TIER 1: LIVE EARTH (Huge) + SIDEBAR [ISS & NEO] (Compact) */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 mb-12">
           
-          {/* MAIN PANEL: LIVE EARTH (Takes 8 columns) */}
+          {/* MAIN PANEL: SECURE EARTH FEED (Takes 8 columns) */}
           <div className="xl:col-span-8 relative glass-card border border-emerald-500/30 bg-black/60 rounded-[30px] overflow-hidden p-1 flex flex-col group backdrop-blur-xl shadow-[0_0_50px_rgba(16,185,129,0.15)] h-full">
             <div className="absolute inset-0 bg-emerald-500/5 blur-[50px] group-hover:bg-emerald-500/15 transition-colors duration-700"></div>
 
@@ -169,14 +169,14 @@ export default function ResearchPage() {
                 </span>
               </div>
 
-              {/* شاشة البث المباشر (تم الاستغناء عن iframes ويوتيوب وتم وضع فيديو HTML مباشر غير قابل للتعطل) */}
+              {/* مُشغل الفيديو الخام المباشر للارض من الفضاء - لا يوجد يوتيوب أو iframes هنا! */}
               <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-emerald-500/40 aspect-video bg-black shadow-[inset_0_0_50px_rgba(16,185,129,0.2)] group/screen">
                  <Crosshair className="absolute top-4 left-4 text-emerald-400/60 z-20 pointer-events-none animate-pulse" size={28} />
                  <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180 animate-pulse" size={28} />
                  <div className="absolute top-0 left-0 w-full h-[2px] bg-emerald-400/50 opacity-40 animate-scan-vert z-20 pointer-events-none shadow-[0_0_20px_rgba(16,185,129,1)]"></div>
                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-20 pointer-events-none"></div>
 
-                 {/* مشغل الفيديو الخام المباشر للارض من الفضاء - لا يوجد يوتيوب هنا */}
+                 {/* HTML5 Direct Video Player - Unbreakable Loop */}
                  <video 
                    autoPlay 
                    loop 
@@ -185,6 +185,7 @@ export default function ResearchPage() {
                    className="absolute inset-0 w-full h-full object-cover z-10"
                  >
                    <source src="https://sylvan.apple.com/Videos/comp_GL_G004_C010_v03_6Mbps.mp4" type="video/mp4" />
+                   <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/Orbiting_Earth_at_Night.webm/Orbiting_Earth_at_Night.webm.1080p.vp9.webm" type="video/webm" />
                  </video>
 
                  <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
@@ -206,8 +207,8 @@ export default function ResearchPage() {
               </div>
 
               <div className="mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono text-emerald-400/60 uppercase tracking-widest">
-                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'تشفير كمي 256-BIT' : '256-BIT ENCRYPTION'}</span>
-                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse text-emerald-400"/> {isRTL ? 'إشارة مستقرة (خادم دائم)' : 'STABLE UPLINK (PERMANENT SERVER)'}</span>
+                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'تشفير كمي مستمر 256-BIT' : '256-BIT ENCRYPTION'}</span>
+                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse text-emerald-400"/> {isRTL ? 'بث مستقر دائم' : 'STABLE PERMANENT UPLINK'}</span>
               </div>
             </div>
           </div>
