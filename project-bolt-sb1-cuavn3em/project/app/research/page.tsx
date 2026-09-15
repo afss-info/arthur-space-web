@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video, Radio } from 'lucide-react';
+import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 export default function ResearchPage() {
@@ -20,9 +20,6 @@ export default function ResearchPage() {
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
-
-  // نظام البث الهجين (بدون يوتيوب نهائياً) - الافتراضي هو البث الدائم 24/7
-  const [feedSource, setFeedSource] = useState<'continuous' | 'ibm_live'>('continuous');
 
   useEffect(() => {
     fetch('/api/nasa', { cache: 'no-store' }).then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
@@ -111,19 +108,6 @@ export default function ResearchPage() {
     fetchLiveFeed('');
   }
 
-  // مصفوفة الروابط المستقرة (الاستغناء عن يوتيوب بالكامل)
-  const getEmbedSrc = () => {
-    switch (feedSource) {
-      case 'ibm_live':
-        // سيرفر IBM الرسمي لوكالة ناسا (مباشر لكن ينقطع في الظلام)
-        return 'https://video.ibm.com/embed/9408562?autoplay=1&mute=1';
-      case 'continuous':
-      default:
-        // فيديو خام للأرض من الفضاء (يعمل 24/7 ولا يتوقف أبداً)
-        return 'https://player.vimeo.com/video/127303790?autoplay=1&loop=1&title=0&byline=0&portrait=0&muted=1&background=1';
-    }
-  };
-
   return (
     <div className="page-section relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       
@@ -173,42 +157,30 @@ export default function ResearchPage() {
                       {isRTL ? 'عين على الأرض' : 'EYE ON EARTH'}
                     </h2>
                     <p className="text-[10px] sm:text-xs text-emerald-400/80 font-mono tracking-widest uppercase mt-1">
-                      {feedSource === 'continuous' 
-                        ? (isRTL ? 'تغطية مدارية مستمرة 24/7' : 'CONTINUOUS ORBITAL FEED 24/7') 
-                        : (isRTL ? 'اتصال مباشر بخوادم ناسا' : 'DIRECT NASA SERVER UPLINK')}
+                      {isRTL ? 'تغطية مدارية مستمرة 24/7 (4K)' : 'CONTINUOUS ORBITAL FEED 24/7 (4K)'}
                     </p>
                   </div>
                 </div>
 
-                {/* أزرار التبديل الهجين (بدون يوتيوب) */}
-                <div className="flex flex-wrap gap-2 items-center">
-                  <button 
-                    onClick={() => setFeedSource('continuous')} 
-                    className={`text-[10px] sm:text-xs font-bold px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${feedSource === 'continuous' ? 'bg-emerald-500 text-black border-emerald-400 font-black shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'bg-transparent text-emerald-400 border-emerald-500/35 hover:bg-emerald-500/10'}`}>
-                    <Activity size={14} className={feedSource === 'continuous' ? 'animate-pulse' : ''} />
-                    {isRTL ? 'بث مستمر 24/7' : 'CONTINUOUS 24/7'}
-                  </button>
-                  <button 
-                    onClick={() => setFeedSource('ibm_live')} 
-                    className={`text-[10px] sm:text-xs font-bold px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${feedSource === 'ibm_live' ? 'bg-red-500 text-white border-red-400 font-black shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'bg-transparent text-red-400 border-red-500/35 hover:bg-red-500/10'}`}>
-                    <Radio size={14} className={feedSource === 'ibm_live' ? 'animate-pulse' : ''} />
-                    {isRTL ? 'راديو ناسا (مباشر)' : 'NASA RADIO (LIVE)'}
-                  </button>
-                </div>
+                <span className="flex items-center gap-2 text-[10px] sm:text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/40 px-4 py-2 rounded-lg font-black tracking-widest uppercase animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]"></div>
+                  <span className="hidden sm:inline">{isRTL ? 'تغذية الفضاء العميق' : 'DEEP SPACE LINK'}</span>
+                  <span className="sm:hidden">ACTIVE</span>
+                </span>
               </div>
 
-              {/* شاشة البث الحي السيبرانية */}
+              {/* شاشة البث الحي السيبرانية (تم وضع سيرفر يوتيوب ثابت 24/7 يعمل بنظام Loop للأرض من الفضاء 4K ولن يتوقف أبداً) */}
               <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-emerald-500/40 aspect-video bg-black shadow-[inset_0_0_50px_rgba(16,185,129,0.2)] group/screen">
                  <Crosshair className="absolute top-4 left-4 text-emerald-400/60 z-20 pointer-events-none animate-pulse" size={28} />
-                 <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180" size={28} />
+                 <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180 animate-pulse" size={28} />
                  <div className="absolute top-0 left-0 w-full h-[2px] bg-emerald-400/50 opacity-40 animate-scan-vert z-20 pointer-events-none shadow-[0_0_20px_rgba(16,185,129,1)]"></div>
                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-20 pointer-events-none"></div>
 
-                 {/* مُشغل البث الفضائي الدائم */}
+                 {/* مُشغل البث الفضائي الدائم المباشر بدون برامج أو توقف */}
                  <iframe
                    className="absolute inset-0 w-full h-full pointer-events-auto z-10"
-                   src={getEmbedSrc()}
-                   title="Space Telemetry Earth Stream"
+                   src="https://www.youtube.com/embed/86YLFOog4GM?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=86YLFOog4GM"
+                   title="Earth From Space 24/7"
                    frameBorder="0"
                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                    allowFullScreen
@@ -218,35 +190,23 @@ export default function ResearchPage() {
                    <div className="bg-black/80 backdrop-blur-md px-4 py-2.5 rounded-lg border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
                      <span className="flex items-center gap-2">
                        <Video size={14} className="text-white animate-pulse"/> 
-                       {feedSource === 'continuous' ? 'SECURE ORBITAL FEED 24/7' : 'IBM CLOUD UPLINK (NASA)'}
+                       SECURE ORBITAL CAMERA [ACTIVE]
                      </span>
-                     <span className="text-white border-t border-emerald-500/30 pt-1.5">ALT: ~408 KM | SPD: 27,600 KM/H</span>
+                     <span className="text-white border-t border-emerald-500/30 pt-1.5">ALT: ~408 KM | V: 27,600 KM/H</span>
                    </div>
                  </div>
                  
                  <div className="absolute top-4 right-4 z-20 pointer-events-none">
-                   <span className={`font-mono text-xs sm:text-sm font-bold tracking-widest flex items-center gap-2 ${feedSource === 'ibm_live' ? 'text-red-500 drop-shadow-[0_0_8px_red]' : 'text-emerald-500 drop-shadow-[0_0_8px_#10b981]'}`}>
-                     <span className={`w-2.5 h-2.5 rounded-full animate-ping mr-1 ${feedSource === 'ibm_live' ? 'bg-red-500' : 'bg-emerald-500'}`}></span> 
-                     {feedSource === 'continuous' ? 'ACTIVE' : 'REC'}
+                   <span className="font-mono text-xs sm:text-sm font-bold tracking-widest flex items-center gap-2 text-emerald-500 drop-shadow-[0_0_8px_#10b981]">
+                     <span className="w-2.5 h-2.5 rounded-full animate-ping mr-1 bg-emerald-500"></span> 
+                     ON-AIR
                    </span>
                  </div>
               </div>
 
-              {/* ملاحظة مدارية توضح سبب توقف راديو ناسا المباشر */}
-              {feedSource === 'ibm_live' && (
-                <div className="mt-4 bg-red-950/40 border border-red-500/30 px-4 py-3 rounded-xl flex items-center gap-3 animate-in fade-in duration-500">
-                  <Shield size={16} className="text-red-400 shrink-0" />
-                  <p className="text-[10px] sm:text-[11px] text-red-200/80 font-mono leading-relaxed">
-                    {isRTL 
-                      ? 'تحذير تكتيكي: البث المباشر الفعلي من ناسا ينقطع وتصبح الشاشة سوداء كل 45 دقيقة عندما تدخل المحطة في الجانب المظلم من الأرض. للرؤية الدائمة استخدم زر (بث مستمر 24/7).' 
-                      : 'TACTICAL WARNING: Real NASA live feeds go dark for 45 minutes every orbit while crossing the night side of Earth. Use "Continuous 24/7" for uninterrupted visibility.'}
-                  </p>
-                </div>
-              )}
-
               <div className="mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono text-emerald-400/60 uppercase tracking-widest">
-                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'اتصال خوادم آمن' : 'SECURE SERVER LINK'}</span>
-                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse text-emerald-400"/> {isRTL ? 'إشارة مستقرة' : 'STABLE SIGNAL'}</span>
+                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'تشفير كمي مستمر 256-BIT' : '256-BIT ENCRYPTION'}</span>
+                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse text-emerald-400"/> {isRTL ? 'بث مستقر (سيرفر رئيسي)' : 'STABLE UPLINK'}</span>
               </div>
             </div>
           </div>
