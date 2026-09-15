@@ -4,19 +4,19 @@ import React, { useState, useEffect } from 'react';
 import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video, Clock, RefreshCcw, Sparkles, Cpu } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
-// خزنة الأرض: فيديوهات 4K عالية الدقة ومذهلة للأرض بدون واجهة
+// 🌍 خزنة الأرض: أقوى وأثبت سيرفرات البث المباشر (24/7) من محطة الفضاء الدولية
 const EARTH_VAULT = [
-  "86YLFOog4GM", // NASA Earth From Space 4K
-  "X0m3z3T7aKA", // ISS Live Loop 1
-  "21X5lGlDOfg"  // ISS Live Loop 2
+  "X0m3z3T7aKA", // سيرفر ISS Live Now (مباشر 24/7 للأرض)
+  "86YLFOog4GM", // سيرفر NASA Official Earth 4K Loop
+  "cEEWWCAV2Z8"  // سيرفر احتياطي ثابت للأرض
 ];
 
-// خزنة الفضاء العميق: فيديوهات حيوية جداً وممتلئة بالألوان (لا يوجد سواد كئيب)
+// 🌌 خزنة الفضاء العميق: فيديوهات مفعمة بالألوان الحية (لا يوجد سواد كئيب)
 const DEEP_SPACE_VAULT = [
-  "Un5SEJ8MyPc", // جيمس ويب - ألوان خارقة
+  "Un5SEJ8MyPc", // جيمس ويب - ألوان ساحرة جداً
   "17jymDn0W6U", // سديم الجبار 3D - ألوان نابضة
   "rQcRNzeX40M", // أعمدة الخلق - حيوية جداً
-  "W1AEEB8o5j0"  // سديم كارينا - ألوان نارية
+  "W1AEEB8o5j0"  // سديم كارينا - ناري وملون
 ];
 
 export default function ResearchPage() {
@@ -35,18 +35,17 @@ export default function ResearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // === خوارزمية المحاكاة المدارية ===
+  // === خوارزمية المحاكاة المدارية وعدم التكرار ===
   const [orbitPhase, setOrbitPhase] = useState<'EARTH' | 'DEEP_SPACE'>('EARTH');
   const [cycleCountdown, setCycleCountdown] = useState(2700); 
   const [currentVideoId, setCurrentVideoId] = useState('');
   const [earthPool, setEarthPool] = useState([...EARTH_VAULT]);
   const [spacePool, setSpacePool] = useState([...DEEP_SPACE_VAULT]);
   
-  // حالة شاشة الانتقال
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionMsg, setTransitionMsg] = useState('');
 
-  // دالة بناء الرابط المحصن ضد الإعلانات والمقترحات والتحكم
+  // 🛡️ بناء الرابط المحصن: يمنع الإعلانات، المقترحات، ويقوم بالتكرار التلقائي
   const getSafeYoutubeUrl = (id: string) => {
     return `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&disablekb=1&iv_load_policy=3&loop=1&playlist=${id}`;
   };
@@ -59,8 +58,8 @@ export default function ResearchPage() {
       setCurrentVideoId(newVideoId);
       setTimeout(() => {
         setIsTransitioning(false);
-      }, 1500); // إبقاء شاشة الانتقال قليلاً بعد تغيير الفيديو
-    }, 2000); // مدة التظليل قبل تغيير المصدر
+      }, 1500); 
+    }, 2000); 
   };
 
   const pickNextVideo = (phase: 'EARTH' | 'DEEP_SPACE') => {
@@ -82,7 +81,6 @@ export default function ResearchPage() {
   };
 
   useEffect(() => {
-    // تشغيل فوري بدون تأخير عند التحميل
     let pool = [...EARTH_VAULT];
     const idx = Math.floor(Math.random() * pool.length);
     const initialVid = pool[idx];
@@ -241,14 +239,15 @@ export default function ResearchPage() {
         {/* TIER 1: THE DYNAMIC ORBITAL BROADCAST SYSTEM (DOBS) */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 mb-12">
           
-          {/* MAIN PANEL: DYNAMIC YOUTUBE BLOCKER VIDEO */}
-          <div className={`xl:col-span-8 relative glass-card border bg-black/60 rounded-[30px] overflow-hidden p-1 flex flex-col group backdrop-blur-xl transition-all duration-1000 ${isEarth ? 'border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)]' : 'border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.15)]'} h-full`}>
-            <div className={`absolute inset-0 blur-[50px] transition-colors duration-1000 ${isEarth ? 'bg-emerald-500/5 group-hover:bg-emerald-500/15' : 'bg-purple-500/5 group-hover:bg-purple-500/15'}`}></div>
+          {/* MAIN PANEL: DYNAMIC CLEAN VIDEO PANEL */}
+          <div className={`xl:col-span-8 relative glass-card border bg-black/60 rounded-[30px] overflow-hidden p-5 sm:p-8 flex flex-col group backdrop-blur-xl transition-all duration-1000 ${isEarth ? 'border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)]' : 'border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.15)]'} h-full`}>
+            <div className={`absolute inset-0 blur-[50px] transition-colors duration-1000 ${isEarth ? 'bg-emerald-500/5' : 'bg-purple-500/5'}`}></div>
 
-            <div className="p-4 sm:p-8 flex flex-col h-full relative z-10">
+            <div className="relative z-10 flex flex-col h-full">
+              {/* Header Title Panel */}
               <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b pb-4 transition-colors duration-1000 ${isEarth ? 'border-emerald-500/20' : 'border-purple-500/20'}`}>
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border group-hover:scale-110 transition-all duration-1000 ${isEarth ? 'bg-emerald-950/60 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-purple-950/60 border-purple-500/40 shadow-[0_0_20px_rgba(168,85,247,0.3)]'}`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-1000 ${isEarth ? 'bg-emerald-950/60 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-purple-950/60 border-purple-500/40 shadow-[0_0_20px_rgba(168,85,247,0.3)]'}`}>
                     {isEarth ? <Earth className="text-emerald-400 animate-[spin_10s_linear_infinite]" size={24} /> : <Sparkles className="text-purple-400 animate-pulse" size={24} />}
                   </div>
                   <div>
@@ -272,29 +271,25 @@ export default function ResearchPage() {
                 </div>
               </div>
 
-              {/* شاشة البث المحصنة بالكامل */}
-              <div className={`relative w-full flex-1 rounded-2xl overflow-hidden border aspect-video bg-black transition-all duration-1000 group/screen ${isEarth ? 'border-emerald-500/40 shadow-[inset_0_0_50px_rgba(16,185,129,0.2)]' : 'border-purple-500/40 shadow-[inset_0_0_50px_rgba(168,85,247,0.2)]'}`}>
+              {/* 📺 شاشة العرض النظيفة (بدون مستطيلات أو تداخلات) */}
+              <div className={`relative w-full rounded-2xl overflow-hidden border aspect-video bg-black transition-all duration-1000 shadow-2xl ${isEarth ? 'border-emerald-500/40 shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-purple-500/40 shadow-[0_0_30px_rgba(168,85,247,0.2)]'}`}>
                  
-                 {/* طبقة الحماية القصوى: تمنع أي نقرة أو تفاعل مع اليوتيوب (لا إيقاف، لا شعارات، لا اقتراحات) */}
+                 {/* 🛡️ الدرع السيبراني المطلق لمنع النقر على يوتيوب (يمنع الإيقاف أو إظهار المقترحات) */}
                  <div className="absolute inset-0 z-40 pointer-events-auto bg-transparent"></div>
 
-                 <Crosshair className={`absolute top-4 left-4 z-50 pointer-events-none animate-pulse transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`} size={28} />
-                 <Crosshair className={`absolute bottom-4 right-4 z-50 pointer-events-none transform rotate-180 animate-pulse transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`} size={28} />
-                 <div className={`absolute top-0 left-0 w-full h-[2px] opacity-40 animate-scan-vert z-50 pointer-events-none transition-all duration-1000 ${isEarth ? 'bg-emerald-400/50 shadow-[0_0_20px_rgba(16,185,129,1)]' : 'bg-purple-400/50 shadow-[0_0_20px_rgba(168,85,247,1)]'}`}></div>
-                 
-                 {/* التظليل السينمائي المدمج لدمج الأطراف */}
-                 <div className="absolute inset-0 pointer-events-none z-30 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]"></div>
+                 {/* خط المسح الجمالي */}
+                 <div className={`absolute top-0 left-0 w-full h-[2px] opacity-40 animate-scan-vert z-30 pointer-events-none transition-all duration-1000 ${isEarth ? 'bg-emerald-400/50 shadow-[0_0_20px_rgba(16,185,129,1)]' : 'bg-purple-400/50 shadow-[0_0_20px_rgba(168,85,247,1)]'}`}></div>
 
                  {/* شاشة الانتقال الهولوغرامية (Warp Transition) */}
-                 <div className={`absolute inset-0 z-45 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center transition-all duration-700 ${isTransitioning ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                 <div className={`absolute inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center transition-all duration-700 ${isTransitioning ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                     <Cpu size={50} className={`mb-6 animate-pulse ${isEarth ? 'text-emerald-500' : 'text-purple-500'}`} />
-                    <div className="text-white text-lg sm:text-2xl font-black tracking-[0.3em] uppercase mb-2 animate-pulse">{transitionMsg}</div>
-                    <div className={`text-xs font-mono tracking-widest ${isEarth ? 'text-emerald-400/70' : 'text-purple-400/70'}`}>
+                    <div className="text-white text-base sm:text-xl font-black tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-2 animate-pulse text-center px-4">{transitionMsg}</div>
+                    <div className={`text-[10px] sm:text-xs font-mono tracking-widest ${isEarth ? 'text-emerald-400/70' : 'text-purple-400/70'}`}>
                       {isRTL ? 'تشفير وبرمجة المسار المداري...' : 'ENCRYPTING ORBITAL PATHWAY...'}
                     </div>
                  </div>
 
-                 {/* مشغل الإطار المحصن بالكامل - مقطع بعيد لمنع ظهور الشعارات */}
+                 {/* مشغل الفيديو: تم تكبيره قليلاً scale-[1.15] لقص شعارات وحواف يوتيوب نهائياً */}
                  {currentVideoId && (
                    <iframe
                      className="absolute inset-0 w-full h-full pointer-events-none z-10 transform scale-[1.15]" 
@@ -304,31 +299,32 @@ export default function ResearchPage() {
                      allowFullScreen
                    ></iframe>
                  )}
-
-                 <div className="absolute bottom-4 left-4 z-50 pointer-events-none">
-                   <div className={`bg-black/80 backdrop-blur-md px-4 py-2.5 rounded-lg border text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)] transition-all duration-1000 ${isEarth ? 'border-emerald-500/40 text-emerald-400' : 'border-purple-500/40 text-purple-400'}`}>
-                     <span className="flex items-center gap-2">
-                       <Video size={14} className="text-white animate-pulse"/> 
-                       {isEarth ? 'ESA ORBITAL CAMERA [ACTIVE]' : 'HUBBLE/WEB TELESCOPE [ACTIVE]'}
-                     </span>
-                     <span className={`text-white border-t pt-1.5 transition-colors duration-1000 ${isEarth ? 'border-emerald-500/30' : 'border-purple-500/30'}`}>
-                       {isEarth ? 'ALT: ~408 KM | V: 27,600 KM/H' : 'LOC: DEEP GALAXY | LIGHTYEARS AWAY'}
-                     </span>
-                   </div>
-                 </div>
-                 
-                 <div className="absolute top-4 right-4 z-50 pointer-events-none">
-                   <span className={`font-mono text-xs sm:text-sm font-bold tracking-widest flex items-center gap-2 transition-all duration-1000 ${isEarth ? 'text-emerald-500 drop-shadow-[0_0_8px_#10b981]' : 'text-purple-500 drop-shadow-[0_0_8px_#a855f7]'}`}>
-                     <span className={`w-2.5 h-2.5 rounded-full animate-ping mr-1 transition-colors duration-1000 ${isEarth ? 'bg-emerald-500' : 'bg-purple-500'}`}></span> 
-                     {isEarth ? 'ON-AIR' : 'SCANNING'}
-                   </span>
-                 </div>
               </div>
 
-              <div className={`mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono uppercase tracking-widest transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`}>
-                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'حماية من الاقتراحات والإعلانات' : 'AD-FREE PROTECTED SHIELD'}</span>
-                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse"/> {isRTL ? 'عدم تكرار تلقائي' : 'ANTI-REPEAT ACTIVE'}</span>
+              {/* 📊 لوحة البيانات (تم نقلها للخارج بالكامل لتبقى الشاشة نظيفة) */}
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className={`bg-black/80 backdrop-blur-md px-5 py-4 rounded-xl border flex flex-col gap-2 transition-all duration-1000 ${isEarth ? 'border-emerald-500/30' : 'border-purple-500/30'}`}>
+                  <span className={`text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 ${isEarth ? 'text-emerald-400' : 'text-purple-400'}`}>
+                    <Video size={14} className="text-white animate-pulse"/> 
+                    {isEarth ? (isRTL ? 'الكاميرا المدارية [نشطة]' : 'ORBITAL CAMERA [ACTIVE]') : (isRTL ? 'مرصد الفضاء العميق [نشط]' : 'DEEP SPACE TELESCOPE [ACTIVE]')}
+                  </span>
+                  <span className={`text-white text-xs font-mono tracking-widest border-t pt-2 transition-colors duration-1000 ${isEarth ? 'border-emerald-500/20' : 'border-purple-500/20'}`}>
+                    {isEarth ? 'ALT: ~408 KM | V: 27,600 KM/H' : 'LOC: DEEP GALAXY | LIGHTYEARS AWAY'}
+                  </span>
+                </div>
+
+                <div className={`bg-black/80 backdrop-blur-md px-5 py-4 rounded-xl border flex flex-col gap-2 justify-center transition-all duration-1000 ${isEarth ? 'border-emerald-500/30' : 'border-purple-500/30'}`}>
+                  <span className={`font-mono text-sm sm:text-base font-black tracking-widest flex items-center gap-3 transition-all duration-1000 ${isEarth ? 'text-emerald-500 drop-shadow-[0_0_8px_#10b981]' : 'text-purple-500 drop-shadow-[0_0_8px_#a855f7]'}`}>
+                    <span className={`w-3 h-3 rounded-full animate-ping transition-colors duration-1000 ${isEarth ? 'bg-emerald-500' : 'bg-purple-500'}`}></span> 
+                    {isEarth ? 'ON-AIR / SECURE' : 'SCANNING SYSTEM'}
+                  </span>
+                  <div className={`text-[10px] font-bold tracking-widest uppercase flex justify-between items-center ${isEarth ? 'text-emerald-400/70' : 'text-purple-400/70'}`}>
+                     <span>{isRTL ? 'حماية من الاقتراحات' : 'AD-FREE SHIELD'}</span>
+                     <Lock size={12}/>
+                  </div>
+                </div>
               </div>
+
             </div>
           </div>
 
