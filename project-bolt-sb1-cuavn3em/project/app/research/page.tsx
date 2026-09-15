@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth } from 'lucide-react';
+import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 export default function ResearchPage() {
@@ -19,7 +19,7 @@ export default function ResearchPage() {
   
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false); // حالة الترجمة الحية
+  const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     // جلب البيانات الأولية باللغة الإنجليزية
@@ -58,7 +58,6 @@ export default function ResearchPage() {
     }
   };
 
-  // المفاعل السحري: يعمل فوراً عند الضغط على زر اللغة وتغيير isRTL
   useEffect(() => {
     if (isRTL && !isTranslating) {
       const translateEverything = async () => {
@@ -76,14 +75,14 @@ export default function ResearchPage() {
            if (res.translatedText) setEarthData((prev: any) => ({ ...prev, ar_caption: res.translatedText }));
         }
 
-        // ترجمة الأوراق البحثية (كحزمة واحدة)
+        // ترجمة الأوراق البحثية
         if (papersData.length > 0 && !papersData[0].ar_title) {
            const titles = papersData.map(p => p.title);
            const res = await fetch('/api/translate', { method: 'POST', body: JSON.stringify({ text: titles, target: 'ar' }) }).then(r=>r.json());
            if (res.translatedText) setPapersData(prev => prev.map((p, i) => ({ ...p, ar_title: res.translatedText[i] })));
         }
 
-        // ترجمة أخبار الفضاء (كحزمة واحدة)
+        // ترجمة أخبار الفضاء
         if (newsData.length > 0 && !newsData[0].ar_title) {
            const titles = newsData.map(n => n.title);
            const res = await fetch('/api/translate', { method: 'POST', body: JSON.stringify({ text: titles, target: 'ar' }) }).then(r=>r.json());
@@ -115,7 +114,6 @@ export default function ResearchPage() {
   }
 
   return (
-    // إزالة الخلفية الداكنة ليسمح لنجوم الموقع الأساسية بالظهور
     <div className="page-section relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       
       <style dangerouslySetInnerHTML={{__html: `
@@ -123,12 +121,9 @@ export default function ResearchPage() {
         .animate-radar { animation: radar-spin 4s linear infinite; }
         @keyframes scan-vertical { 0% { transform: translateY(-100%); } 100% { transform: translateY(1000%); } }
         .animate-scan-vert { animation: scan-vertical 3s linear infinite; }
-        @keyframes slow-spin { 100% { transform: rotate(360deg); } }
-        .animate-spin-earth { animation: slow-spin 60s linear infinite; }
         .matrix-glow { text-shadow: 0 0 8px rgba(34,211,238,0.8); }
       `}} />
 
-      {/* شبكة سيبرانية شفافة جداً تتداخل مع نجوم الموقع */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none z-0"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -139,7 +134,7 @@ export default function ResearchPage() {
           <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-blue-500/40 bg-blue-500/10 mb-6 shadow-[0_0_20px_rgba(59,130,246,0.2)] backdrop-blur-sm">
             <Activity size={14} className="text-blue-400 animate-pulse" />
             <span className="text-blue-300 text-xs font-bold tracking-[0.2em] uppercase">
-              {t('nav_research')} // {isRTL ? 'مركز القيادة المتقدم' : 'ADVANCED COMMAND CENTER'}
+              {t('nav_research')}
             </span>
             {isTranslating && <Loader2 size={12} className="animate-spin text-purple-400" />}
           </div>
@@ -152,51 +147,72 @@ export default function ResearchPage() {
         {/* TOP SATELLITE TIER (EARTH & ISS) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           
-          {/* Earth DSCOVR Satellite Panel */}
-          <div className="relative glass-card border border-emerald-500/30 bg-emerald-950/20 rounded-3xl overflow-hidden p-6 sm:p-8 flex flex-col justify-between group backdrop-blur-md">
-            <div className="absolute inset-0 bg-emerald-500/5 blur-[50px] group-hover:bg-emerald-500/10 transition-colors"></div>
-            
-            <div className="flex items-center justify-between mb-6 relative z-10">
-              <div className="flex items-center gap-3">
-                <Earth className="text-emerald-400 animate-pulse" size={24} />
-                <h2 className="text-lg font-black text-white tracking-widest uppercase">
-                  {isRTL ? 'تغطية قمر DSCOVR' : 'DSCOVR SATELLITE FEED'}
-                </h2>
-              </div>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1 rounded font-mono animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.4)]">
-                {isRTL ? 'مباشر من الفضاء' : 'LIVE FEED'}
-              </span>
-            </div>
+          {/* LIVE EARTH ORBITAL STREAM PANEL (التحفة الإبداعية الجديدة) */}
+          <div className="relative glass-card border border-emerald-500/30 bg-black/60 rounded-3xl overflow-hidden p-1 flex flex-col group backdrop-blur-xl shadow-[0_0_40px_rgba(16,185,129,0.1)]">
+            <div className="absolute inset-0 bg-emerald-500/5 blur-[50px] group-hover:bg-emerald-500/15 transition-colors duration-700"></div>
 
-            {earthData && !earthData.error ? (
-              <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
-                <div className="relative w-40 h-40 shrink-0">
-                  <div className="absolute inset-0 rounded-full shadow-[0_0_30px_rgba(16,185,129,0.3)] pointer-events-none"></div>
-                  {/* أضفت Fallback في حال تأخرت الصورة */}
-                  <img src={earthData.imageUrl} alt="Earth Live" onError={(e) => e.currentTarget.src = "https://epic.gsfc.nasa.gov/assets/img/epic_earth.png"} className="w-full h-full rounded-full object-cover animate-spin-earth border border-emerald-500/20" />
-                  <Crosshair className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-emerald-400/30" size={180}/>
-                </div>
-                <div className="space-y-3 w-full">
-                  <div className="bg-black/50 border border-emerald-500/20 p-3 rounded-xl">
-                    <span className="text-emerald-500/70 text-[10px] font-bold tracking-widest uppercase">{isRTL ? 'إحداثيات الالتقاط' : 'CAPTURE COORDS'}</span>
-                    <div className="text-white text-sm font-mono mt-1">
-                      X: {parseFloat(earthData.centroid_coordinates.lat).toFixed(2)} | Y: {parseFloat(earthData.centroid_coordinates.lon).toFixed(2)}
-                    </div>
+            <div className="p-5 sm:p-8 flex flex-col h-full relative z-10">
+              <div className="flex items-center justify-between mb-6 border-b border-emerald-500/20 pb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-950/60 flex items-center justify-center border border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:scale-110 transition-transform duration-500">
+                    <Earth className="text-emerald-400 animate-[spin_10s_linear_infinite]" size={24} />
                   </div>
-                  <div className="bg-black/50 border border-emerald-500/20 p-3 rounded-xl">
-                    <span className="text-emerald-500/70 text-[10px] font-bold tracking-widest uppercase">{isRTL ? 'الوصف المباشر' : 'LIVE DESCRIPTION'}</span>
-                    <div className="text-gray-300 text-xs mt-1 line-clamp-3">
-                      {isRTL && earthData.ar_caption ? earthData.ar_caption : earthData.caption}
-                    </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-black text-white tracking-widest uppercase drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">
+                      {isRTL ? 'عين على الأرض' : 'EYE ON EARTH'}
+                    </h2>
+                    <p className="text-[10px] text-emerald-400/80 font-mono tracking-widest uppercase mt-1">{isRTL ? 'بث الفضاء العميق (ISS)' : 'DEEP SPACE FEED (ISS)'}</p>
                   </div>
                 </div>
+                <span className="flex items-center gap-2 text-[10px] sm:text-xs bg-red-500/10 text-red-400 border border-red-500/40 px-3 py-1.5 rounded-lg font-black tracking-widest uppercase animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+                  <div className="w-2 h-2 bg-red-500 rounded-full shadow-[0_0_10px_red]"></div>
+                  <span className="hidden sm:inline">{isRTL ? 'بث مباشر' : 'LIVE UPLINK'}</span>
+                  <span className="sm:hidden">LIVE</span>
+                </span>
               </div>
-            ) : (
-               <div className="flex-1 flex flex-col items-center justify-center text-emerald-500/50 font-mono text-sm py-10 gap-3">
-                 <Loader2 className="animate-spin" size={30}/> 
-                 {isRTL ? 'جاري معايرة كاميرا EPIC...' : 'CALIBRATING EPIC SENSORS...'}
-               </div>
-            )}
+
+              {/* شاشة البث الحي السيبرانية */}
+              <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-emerald-500/40 aspect-video bg-black shadow-[inset_0_0_40px_rgba(16,185,129,0.2)] group/screen">
+                 {/* Cybernetic HUD Overlays */}
+                 <Crosshair className="absolute top-4 left-4 text-emerald-400/60 z-20 pointer-events-none animate-pulse" size={24} />
+                 <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180 animate-pulse" size={24} />
+                 <div className="absolute top-0 left-0 w-full h-[2px] bg-emerald-400/50 opacity-40 animate-scan-vert z-20 pointer-events-none shadow-[0_0_15px_rgba(16,185,129,1)]"></div>
+                 
+                 {/* تأثير التشويش السيبراني الخفيف */}
+                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-20 pointer-events-none"></div>
+
+                 {/* البث الحي الفعلي من محطة الفضاء الدولية */}
+                 <iframe
+                   className="absolute inset-0 w-full h-full pointer-events-auto z-10"
+                   src="https://www.youtube.com/embed/xRPjKQtRXR8?autoplay=1&mute=1&controls=0&modestbranding=1"
+                   title="NASA ISS Live Stream"
+                   frameBorder="0"
+                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                   allowFullScreen
+                 ></iframe>
+
+                 {/* بيانات التكتيك الفضائي */}
+                 <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
+                   <div className="bg-black/70 backdrop-blur-md px-3 py-2 rounded-lg border border-emerald-500/40 text-emerald-400 text-[9px] sm:text-[10px] font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+                     <span className="flex items-center gap-2"><Video size={12} className="text-white"/> ISS HDEV CAM 01</span>
+                     <span className="text-white border-t border-emerald-500/30 pt-1">ALT: ~408 KM | SPD: 27,600 KM/H</span>
+                   </div>
+                 </div>
+                 
+                 {/* مؤشر التسجيل */}
+                 <div className="absolute top-4 right-4 z-20 pointer-events-none">
+                   <span className="text-red-500 font-mono text-[10px] sm:text-xs font-bold tracking-widest flex items-center gap-1 drop-shadow-[0_0_5px_red]">
+                     <span className="w-2 h-2 rounded-full bg-red-500 animate-ping mr-1"></span> REC
+                   </span>
+                 </div>
+              </div>
+
+              {/* شريط حالة التشفير أسفل الشاشة */}
+              <div className="mt-5 flex justify-between items-center text-[9px] sm:text-[10px] font-mono text-emerald-400/60 uppercase tracking-widest">
+                <span className="flex items-center gap-1.5"><Lock size={12}/> {isRTL ? 'تشفير كمي 256-BIT' : '256-BIT ENCRYPTION'}</span>
+                <span className="flex items-center gap-1.5"><Activity size={12} className="animate-pulse text-emerald-400"/> {isRTL ? 'إشارة مستقرة' : 'STABLE SIGNAL'}</span>
+              </div>
+            </div>
           </div>
 
           {/* ISS Tracker Panel */}
