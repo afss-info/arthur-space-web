@@ -4,19 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video, Clock, RefreshCcw, Sparkles, Cpu } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
-// 🌍 خزنة الأرض: أقوى وأثبت سيرفرات البث المباشر (24/7) من محطة الفضاء الدولية
+// 🌍 خزنة الأرض الاحتياطية الثابتة - تُستخدم كنقطة انطلاق وكحل احتياطي إذا فشل الباك اند
 const EARTH_VAULT = [
-  "X0m3z3T7aKA", // سيرفر ISS Live Now (مباشر 24/7 للأرض)
-  "86YLFOog4GM", // سيرفر NASA Official Earth 4K Loop
-  "cEEWWCAV2Z8"  // سيرفر احتياطي ثابت للأرض
+  "awQzjn72bI0" // NASA Official ISS Live HD Earth View (Harmony module)
 ];
 
-// 🌌 خزنة الفضاء العميق: فيديوهات مفعمة بالألوان الحية (لا يوجد سواد كئيب)
+// 🌌 خزنة الفضاء العميق الاحتياطية الثابتة
 const DEEP_SPACE_VAULT = [
-  "Un5SEJ8MyPc", // جيمس ويب - ألوان ساحرة جداً
-  "17jymDn0W6U", // سديم الجبار 3D - ألوان نابضة
-  "rQcRNzeX40M", // أعمدة الخلق - حيوية جداً
-  "W1AEEB8o5j0"  // سديم كارينا - ناري وملون
+  "Un5SEJ8MyPc",
+  "17jymDn0W6U",
+  "rQcRNzeX40M",
+  "W1AEEB8o5j0"
 ];
 
 export default function ResearchPage() {
@@ -34,6 +32,10 @@ export default function ResearchPage() {
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+
+  // 🆕 الخزنتان الديناميكيتان اللتان تُملآن من الباك اند (يوتيوب API)
+  const [dynamicEarthVault, setDynamicEarthVault] = useState([...EARTH_VAULT]);
+  const [dynamicSpaceVault, setDynamicSpaceVault] = useState([...DEEP_SPACE_VAULT]);
 
   // === خوارزمية المحاكاة المدارية وعدم التكرار ===
   const [orbitPhase, setOrbitPhase] = useState<'EARTH' | 'DEEP_SPACE'>('EARTH');
@@ -65,13 +67,13 @@ export default function ResearchPage() {
   const pickNextVideo = (phase: 'EARTH' | 'DEEP_SPACE') => {
     let newVideoId = '';
     if (phase === 'EARTH') {
-      let pool = earthPool.length > 0 ? earthPool : [...EARTH_VAULT];
+      let pool = earthPool.length > 0 ? earthPool : [...dynamicEarthVault];
       const idx = Math.floor(Math.random() * pool.length);
       newVideoId = pool[idx];
       pool.splice(idx, 1);
       setEarthPool(pool);
     } else {
-      let pool = spacePool.length > 0 ? spacePool : [...DEEP_SPACE_VAULT];
+      let pool = spacePool.length > 0 ? spacePool : [...dynamicSpaceVault];
       const idx = Math.floor(Math.random() * pool.length);
       newVideoId = pool[idx];
       pool.splice(idx, 1);
@@ -87,6 +89,29 @@ export default function ResearchPage() {
     pool.splice(idx, 1);
     setEarthPool(pool);
     setCurrentVideoId(initialVid);
+  }, []);
+
+  // 🆕 جلب فيديوهات متجددة دائمًا من الباك اند (يوتيوب API) عند التحميل، ثم كل 6 ساعات
+  useEffect(() => {
+    const fetchDynamicVideos = () => {
+      fetch('/api/space-videos')
+        .then(res => res.json())
+        .then(data => {
+          if (data.earth && data.earth.length > 0) {
+            setDynamicEarthVault(data.earth);
+            setEarthPool(data.earth);
+          }
+          if (data.deepSpace && data.deepSpace.length > 0) {
+            setDynamicSpaceVault(data.deepSpace);
+            setSpacePool(data.deepSpace);
+          }
+        })
+        .catch(console.error);
+    };
+
+    fetchDynamicVideos();
+    const refreshInterval = setInterval(fetchDynamicVideos, 1000 * 60 * 60 * 6); // كل 6 ساعات
+    return () => clearInterval(refreshInterval);
   }, []);
 
   useEffect(() => {
@@ -602,3 +627,4 @@ export default function ResearchPage() {
     </div>
   );
 }
+
