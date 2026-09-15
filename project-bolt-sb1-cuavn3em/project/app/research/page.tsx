@@ -166,7 +166,7 @@ export default function ResearchPage() {
                 </span>
               </div>
 
-              {/* شاشة البث الحي السيبرانية (أصبحت أضخم) */}
+              {/* شاشة البث الحي السيبرانية (تم تغيير الرابط إلى خوادم IBM/NASA الدائمة 24/7) */}
               <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-emerald-500/40 aspect-video bg-black shadow-[inset_0_0_50px_rgba(16,185,129,0.2)] group/screen">
                  <Crosshair className="absolute top-4 left-4 text-emerald-400/60 z-20 pointer-events-none animate-pulse" size={28} />
                  <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180 animate-pulse" size={28} />
@@ -175,16 +175,16 @@ export default function ResearchPage() {
 
                  <iframe
                    className="absolute inset-0 w-full h-full pointer-events-auto z-10"
-                   src="https://www.youtube.com/embed/xRPjKQtRXR8?autoplay=1&mute=1&controls=0&modestbranding=1"
-                   title="NASA ISS Live Stream"
+                   src="https://video.ibm.com/embed/17074538?autoplay=1&mute=1"
+                   title="NASA ISS Live Stream (Official Permanent Feed)"
                    frameBorder="0"
-                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                    allowFullScreen
                  ></iframe>
 
                  <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
                    <div className="bg-black/70 backdrop-blur-md px-4 py-2.5 rounded-lg border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-                     <span className="flex items-center gap-2"><Video size={14} className="text-white"/> ISS HDEV CAM 01</span>
+                     <span className="flex items-center gap-2"><Video size={14} className="text-white"/> ISS HDEV CAM 01 (IBM UPLINK)</span>
                      <span className="text-white border-t border-emerald-500/30 pt-1.5">ALT: ~408 KM | SPD: 27,600 KM/H</span>
                    </div>
                  </div>
@@ -206,7 +206,7 @@ export default function ResearchPage() {
           {/* RIGHT SIDEBAR: ISS & NEO (Takes 4 columns - Compact & Stacked) */}
           <div className="xl:col-span-4 flex flex-col gap-6 sm:gap-8 h-full">
             
-            {/* ISS Tracker Panel (تم تصغيره وضغطه باحترافية) */}
+            {/* ISS Tracker Panel */}
             <div className="relative glass-card border border-cyan-500/30 bg-cyan-950/20 rounded-[30px] overflow-hidden p-5 sm:p-6 backdrop-blur-md flex-1 flex flex-col">
               <div className="absolute inset-0 bg-cyan-500/5 blur-[50px]"></div>
               <div className="absolute top-0 left-1/2 w-full h-[1px] bg-cyan-400/50 animate-scan-vert opacity-50"></div>
@@ -251,7 +251,7 @@ export default function ResearchPage() {
               </div>
             </div>
 
-            {/* Asteroid NEO Radar (شكل مدمج) */}
+            {/* Asteroid NEO Radar */}
             <div className="relative glass-card border border-red-500/30 bg-red-950/20 rounded-[30px] overflow-hidden p-5 sm:p-6 flex-1 flex flex-col backdrop-blur-md">
                <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border border-red-500/20"></div>
                <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full border border-red-500/30"></div>
@@ -297,7 +297,7 @@ export default function ResearchPage() {
           </div>
         </div>
 
-        {/* TIER 2: NASA APOD (ULTRA WIDE CINEMATIC PANEL - اللوحة السينمائية العملاقة) */}
+        {/* TIER 2: NASA APOD */}
         <div className="w-full mb-20 relative z-20">
           <div className="relative glass-card border border-blue-500/40 bg-black/80 rounded-[40px] overflow-hidden p-2 group backdrop-blur-2xl shadow-[0_0_80px_rgba(59,130,246,0.15)]">
             
@@ -324,7 +324,7 @@ export default function ResearchPage() {
               {nasaData && !nasaData.error ? (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch h-full">
                   
-                  {/* Media Content - Massive Size */}
+                  {/* Media Content */}
                   <div className="lg:col-span-7 relative rounded-3xl overflow-hidden border-2 border-white/10 group-hover:border-blue-500/50 transition-colors duration-500 bg-black min-h-[300px] lg:min-h-[450px] shadow-2xl w-full">
                     <Crosshair className="absolute top-4 left-4 text-cyan-500/70 z-20 pointer-events-none" size={24} />
                     <Crosshair className="absolute bottom-4 right-4 text-cyan-500/70 z-20 pointer-events-none transform rotate-180" size={24} />
@@ -335,7 +335,7 @@ export default function ResearchPage() {
                     )}
                   </div>
                   
-                  {/* Text Details - Beautiful Typography */}
+                  {/* Text Details */}
                   <div className="lg:col-span-5 flex flex-col justify-center space-y-6">
                     <div>
                       <div className="text-cyan-400 text-[10px] sm:text-xs font-mono mb-3 flex items-center gap-2 uppercase tracking-widest bg-cyan-950/40 inline-flex px-3 py-1.5 rounded-lg border border-cyan-500/30">
