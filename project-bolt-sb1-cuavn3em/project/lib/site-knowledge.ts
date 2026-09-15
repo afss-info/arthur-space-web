@@ -58,6 +58,7 @@ export const siteKnowledge = {
       id: "program-02",
       nameEn: "Atheris Research Project",
       nameAr: "مشروع أثيريس البحثي",
+      status: "CLOSED (مغلق حالياً)",
       description: "A collaborative research initiative aimed at publishing scientific research papers through specialized, multidisciplinary teams.",
       teams: [
         "Biomedical Engineering (هندسة الطب الحيوي)",
@@ -74,10 +75,10 @@ export const siteKnowledge = {
       details: "AFSS is an officially registered institute with the IAAC. Jad Yassin serves as an official IAAC Ambassador, representing Arthur For Space Sciences on the international stage."
     },
     {
-      name: "StemMed Students",
+      name: "StemMedic Central",
       status: "Official Partner (شريك رسمي)",
-      type: "US-based 501(c)(3) Nonprofit",
-      details: "A US-based nonprofit committed to empowering students with meaningful STEM opportunities. We collaborate on the Atheris Research Project to drive youth-led scientific research."
+      type: "International Student-led Nonprofit",
+      details: "An international student-led nonprofit organization whose mission is to provide a community of STEM and Medical enthusiasts to underrepresented students around the world, fueling curiosity and nurturing expertise. We collaborate on the Atheris Research Project to drive youth-led scientific research."
     }
   ],
   portals: [
@@ -90,7 +91,7 @@ export const siteKnowledge = {
       path: "/research",
       nameEn: "Space Research",
       nameAr: "أبحاث الفضاء",
-      description: "قاعدة بيانات ضخمة من الأوراق البحثية، أحدث أخبار وكالات الفضاء، وصورة يومية مع مقال من ناسا تحت عنوان NASA Astronomy Picture of the Day."
+      description: "قاعدة بيانات ضخمة من الأوراق البحثية، أحدث أخبار وكالات الفضاء، وصورة يومية مع مقال من ناسا تحت عنوان بالإضافة الى تفاصيل محطة الفضاء الدولية ISS و ايضا رادار يبين تفاصيل الكويكبات و النياك القريبة على الارض و صور مباشرة للارض من القمر الصناعي DSCOVR DEEP SPACE OBSERVATORY."
     },
     {
       path: "/blog",
