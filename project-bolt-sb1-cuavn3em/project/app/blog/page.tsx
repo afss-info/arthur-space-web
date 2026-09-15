@@ -1,15 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Newspaper, Rocket, Calendar, User, X, BookOpen, Fingerprint } from 'lucide-react';
+// تم إضافة Loader2 هنا لإنهاء الخطأ جذرياً!
+import { Sparkles, Newspaper, Rocket, Calendar, User, X, BookOpen, Fingerprint, Loader2 } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 const StarsBackground = () => {
   const [stars, setStars] = useState<any[]>([]);
-  useEffect(() => { setStars(Array.from({ length: 40 }).map((_, i) => ({ id: i, left: `${Math.random() * 100}%`, animationDuration: `${Math.random() * 3 + 2}s`, animationDelay: `${Math.random() * 5}s`, size: Math.random() * 2 + 1 }))); }, []);
+  useEffect(() => { 
+    setStars(Array.from({ length: 40 }).map((_, i) => ({ 
+      id: i, 
+      left: `${Math.random() * 100}%`, 
+      animationDuration: `${Math.random() * 3 + 2}s`, 
+      animationDelay: `${Math.random() * 5}s`, 
+      size: Math.random() * 2 + 1 
+    }))); 
+  }, []);
+  
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {stars.map((star) => (<div key={star.id} className="absolute bg-white rounded-full shadow-[0_0_12px_#fff] animate-fall" style={{ left: star.left, width: `${star.size}px`, height: `${star.size}px`, animationDuration: star.animationDuration, animationDelay: star.animationDelay, top: '-5%' }} />))}
+      {stars.map((star) => (
+        <div key={star.id} className="absolute bg-white rounded-full shadow-[0_0_12px_#fff] animate-fall" 
+             style={{ left: star.left, width: `${star.size}px`, height: `${star.size}px`, animationDuration: star.animationDuration, animationDelay: star.animationDelay, top: '-5%' }} />
+      ))}
     </div>
   );
 };
@@ -29,8 +42,11 @@ export default function BlogPage() {
           const data = await res.json();
           setPosts(data);
         }
-      } catch (error) { console.error('Failed to fetch posts'); } 
-      finally { setLoading(false); }
+      } catch (error) { 
+        console.error('Failed to fetch posts'); 
+      } finally { 
+        setLoading(false); 
+      }
     };
     fetchPosts();
   }, []);
@@ -95,7 +111,9 @@ export default function BlogPage() {
                   <div className="w-full h-52 overflow-hidden relative border-b border-blue-500/30 bg-black cursor-pointer" onClick={() => setSelectedPost(post)}>
                     <video src={post.media} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="w-14 h-14 bg-blue-600/40 rounded-full flex items-center justify-center backdrop-blur-sm border border-blue-400/50 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.5)]"><div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[16px] border-l-white border-b-[10px] border-b-transparent ml-2"></div></div>
+                      <div className="w-14 h-14 bg-blue-600/40 rounded-full flex items-center justify-center backdrop-blur-sm border border-blue-400/50 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                        <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[16px] border-l-white border-b-[10px] border-b-transparent ml-2"></div>
+                      </div>
                     </div>
                   </div>
                 ) : post.media ? (
