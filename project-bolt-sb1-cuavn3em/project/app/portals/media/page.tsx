@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLang } from '@/contexts/LanguageContext';
-import { ShieldCheck, Mail, Key, Edit, PlusCircle, Trash2, LogOut, RadioTower, Image as ImageIcon, Film, Send, ArrowLeft, RefreshCw, Cpu } from 'lucide-react';
+import { ShieldCheck, Mail, Key, Edit, PlusCircle, Trash2, LogOut, RadioTower, Image as ImageIcon, Film, Send, ArrowLeft, RefreshCw, Cpu, ShieldAlert } from 'lucide-react';
 
 const StarsBackground = () => {
   const [stars, setStars] = useState<any[]>([]);
@@ -30,9 +30,9 @@ export default function MediaPortal() {
   
   const initialPost = { id: null, title_ar: '', title_en: '', content_ar: '', content_en: '', media: '', mediaType: 'none' };
   const [postData, setPostData] = useState(initialPost);
-  const [isPublishing, setIsPublishing] = useState(false);
   const [publishStatus, setPublishStatus] = useState('');
-  const [isAuditing, setIsAuditing] = useState(false); // نظام آرثرون للتدقيق
+  const [isAuditing, setIsAuditing] = useState(false); 
+  const [isRejected, setIsRejected] = useState(false); 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,26 +62,42 @@ export default function MediaPortal() {
     }
   };
 
-  // نظام النشر الجديد مع تدقيق آرثرون
+  // 🧠 نظام التدقيق الحقيقي الذي يفهم رفض آرثرون
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsAuditing(true);
+    setIsRejected(false);
     setPublishStatus(isRTL ? 'آرثرون يقوم بالتدقيق العلمي...' : 'Arthuron is Auditing...');
     
-    // محاكاة تدقيق الذكاء الاصطناعي لمدة ثانيتين
-    setTimeout(async () => {
+    try {
+      const method = isEditMode ? 'PUT' : 'POST';
+      const res = await fetch('/api/posts', { 
+        method: method, 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(postData), 
+      });
+      
+      const data = await res.json();
       setIsAuditing(false);
-      setIsPublishing(true);
-      try {
-        const method = isEditMode ? 'PUT' : 'POST';
-        const res = await fetch('/api/posts', { method: method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(postData), });
-        if (res.ok) {
-          setPublishStatus(isRTL ? 'تم النشر بنجاح! 🚀' : 'Published Successfully! 🚀');
-          setTimeout(() => { setCurrentView('menu'); setPublishStatus(''); }, 2000);
+
+      if (res.ok) {
+        setPublishStatus(isRTL ? 'تم اجتياز التدقيق بنجاح! 🚀' : 'Audit Passed & Published! 🚀');
+        setTimeout(() => { setCurrentView('menu'); setPublishStatus(''); }, 2000);
+      } else {
+        // قنص رسالة الرفض من الباك إند
+        if (data.isArthuronRejection) {
+          setIsRejected(true);
+          setPublishStatus(`⛔ ${isRTL ? 'تدخل آرثرون: ' : 'Arthuron Intervention: '} ${data.message}`);
+        } else {
+          setIsRejected(true);
+          setPublishStatus(isRTL ? 'حدث خطأ في النظام!' : 'System Error Occurred!');
         }
-      } catch (err) { setPublishStatus(isRTL ? 'حدث خطأ!' : 'Error occurred!'); }
-      setIsPublishing(false);
-    }, 2000);
+      }
+    } catch (err) { 
+      setIsAuditing(false);
+      setIsRejected(true);
+      setPublishStatus(isRTL ? 'فشل الاتصال بخوادم أثيريس!' : 'Connection to Atheris Servers Failed!'); 
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -92,7 +108,7 @@ export default function MediaPortal() {
 
   if (!isLoggedIn) {
     return (
-      <div className="page-section min-h-screen py-20 flex items-center justify-center relative overflow-hidden bg-[#01030a]" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="page-section min-h-screen py-20 flex items-center justify-center relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
         <style dangerouslySetInnerHTML={{__html: `@keyframes fall { 0% { transform: translateY(-10vh) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) translateX(-20vw); opacity: 0; } } .animate-fall { animation-name: fall; animation-timing-function: linear; animation-iteration-count: infinite; }`}} />
         <StarsBackground />
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none z-0"></div>
@@ -123,16 +139,17 @@ export default function MediaPortal() {
     );
   }
 
-  // شاشة الإضافة والتعديل مع الذكاء الاصطناعي
   if (currentView === 'form') {
     return (
-      <div className="page-section min-h-screen py-20 relative bg-[#01030a]" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="page-section min-h-screen py-20 relative" dir={isRTL ? 'rtl' : 'ltr'}>
         <StarsBackground />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none z-0"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
           <button onClick={() => setCurrentView('menu')} className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors bg-white/5 px-4 py-2 rounded-lg border border-white/10">
             <ArrowLeft size={15} className={isRTL ? 'rotate-180' : ''} /> {isRTL ? 'عودة للوحة التحكم' : 'Back to Dashboard'}
           </button>
-          <div className="glass-card border border-blue-500/30 rounded-3xl p-6 sm:p-10 bg-black/80 backdrop-blur-xl shadow-2xl">
+          
+          <div className={`glass-card border rounded-3xl p-6 sm:p-10 bg-black/80 backdrop-blur-xl shadow-2xl transition-colors duration-500 ${isRejected ? 'border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'border-blue-500/30'}`}>
             <h2 className="text-2xl font-black text-white mb-8 flex items-center gap-3 uppercase tracking-widest">
               {isEditMode ? <Edit className="text-purple-400"/> : <PlusCircle className="text-blue-400"/>}
               {isEditMode ? (isRTL ? 'تعديل المنشور' : 'Edit Post') : (isRTL ? 'إنشاء منشور جديد' : 'Create New Post')}
@@ -162,11 +179,14 @@ export default function MediaPortal() {
               </div>
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p className={`font-mono text-xs font-bold ${isAuditing ? 'text-purple-400 animate-pulse' : 'text-green-400'}`}>
-                   {isAuditing && <Cpu size={14} className="inline mr-2 animate-spin"/>} {publishStatus}
-                </p>
-                <button type="submit" disabled={isPublishing || isAuditing} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(59,130,246,0.4)] disabled:opacity-50">
-                  {isPublishing || isAuditing ? <RefreshCw className="animate-spin" /> : <Send />} 
+                <div className={`font-mono text-xs font-bold flex-1 leading-relaxed ${isAuditing ? 'text-purple-400 animate-pulse' : isRejected ? 'text-red-400' : 'text-green-400'}`}>
+                   {isAuditing ? <><Cpu size={14} className="inline mr-2 animate-spin"/> {publishStatus}</> : 
+                    isRejected ? <><ShieldAlert size={14} className="inline mr-2"/> {publishStatus}</> : 
+                    publishStatus}
+                </div>
+                
+                <button type="submit" disabled={isAuditing} className={`w-full sm:w-auto text-white font-bold py-3 px-8 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 ${isRejected ? 'bg-red-600 hover:bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.4)]' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]'}`}>
+                  {isAuditing ? <RefreshCw className="animate-spin" /> : <Send />} 
                   {isEditMode ? (isRTL ? 'حفظ ونشر' : 'SAVE & PUBLISH') : (isRTL ? 'تدقيق ونشر' : 'AUDIT & PUBLISH')}
                 </button>
               </div>
@@ -177,10 +197,11 @@ export default function MediaPortal() {
     );
   }
 
-  // شاشة لوحة التحكم (المنيو) والقائمة
   return (
-    <div className="page-section min-h-screen py-20 relative bg-[#01030a]" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="page-section min-h-screen py-20 relative" dir={isRTL ? 'rtl' : 'ltr'}>
       <StarsBackground />
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none z-0"></div>
+      
       <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
         
         {currentView === 'list' ? (
@@ -196,7 +217,7 @@ export default function MediaPortal() {
                      <div key={post.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
                        <span className="text-white font-medium text-sm">{isRTL ? post.title_ar : post.title_en}</span>
                        <button onClick={() => { if (listAction === 'edit') { setPostData(post); setIsEditMode(true); setCurrentView('form'); } else { handleDelete(post.id); } }}
-                         className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 uppercase tracking-widest ${listAction === 'edit' ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50' : 'bg-red-600/20 text-red-400 border border-red-500/50'}`}>
+                         className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 uppercase tracking-widest ${listAction === 'edit' ? 'bg-purple-600/20 text-purple-400 border border-purple-500/50 hover:bg-purple-600 hover:text-white' : 'bg-red-600/20 text-red-400 border border-red-500/50 hover:bg-red-600 hover:text-white'} transition-colors`}>
                          {listAction === 'edit' ? <Edit size={14}/> : <Trash2 size={14}/>} {listAction === 'edit' ? (isRTL ? 'تعديل' : 'Edit') : (isRTL ? 'حذف' : 'Delete')}
                        </button>
                      </div>
