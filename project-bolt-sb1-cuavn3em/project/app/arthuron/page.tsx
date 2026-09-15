@@ -4,29 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Cpu, Activity, Orbit, Sparkles, Terminal, RadioTower, Zap, Crosshair, Fingerprint, Hexagon, Globe, Mic } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
-// مكون النجوم الأصلية المتساقطة
-const StarsBackground = () => {
-  const [stars, setStars] = useState<any[]>([]);
-  useEffect(() => {
-    setStars(Array.from({ length: 50 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      animationDuration: `${Math.random() * 3 + 2}s`,
-      animationDelay: `${Math.random() * 5}s`,
-      size: Math.random() * 2 + 1,
-    })));
-  }, []);
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {stars.map((star) => (
-        <div key={star.id} className="absolute bg-white rounded-full shadow-[0_0_12px_#fff] animate-fall"
-          style={{ left: star.left, width: `${star.size}px`, height: `${star.size}px`, animationDuration: star.animationDuration, animationDelay: star.animationDelay, top: '-5%' }}
-        />
-      ))}
-    </div>
-  );
-};
-
 export default function ArthuronPage() {
   const { isRTL } = useLang();
   const [inputValue, setInputValue] = useState('');
@@ -121,18 +98,16 @@ export default function ArthuronPage() {
   };
 
   return (
-    <div className="page-section relative min-h-screen overflow-hidden bg-[#01030a]" dir={isRTL ? 'rtl' : 'ltr'}>
+    // تمت إزالة الخلفية المعتمة لإظهار النجوم الأصلية
+    <div className="page-section relative min-h-screen overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes fall { 0% { transform: translateY(-10vh) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) translateX(-20vw); opacity: 0; } }
-        .animate-fall { animation-name: fall; animation-timing-function: linear; animation-iteration-count: infinite; }
         @keyframes spin-slow { 100% { transform: rotate(360deg); } }
         @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
         .jarvis-glow { text-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 0 40px rgba(6, 182, 212, 0.4); }
         .radar-sweep { background: conic-gradient(from 0deg, transparent 70%, rgba(6, 182, 212, 0.4) 100%); border-radius: 50%; animation: spin-slow 4s linear infinite; }
       `}} />
 
-      <StarsBackground />
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none z-0"></div>
 
       {/* J.A.R.V.I.S Boot Sequence */}
@@ -152,24 +127,18 @@ export default function ArthuronPage() {
         </div>
       )}
 
-      <div className="w-full max-w-6xl mx-auto relative z-10 flex flex-col h-[92vh] pt-24 pb-6 px-4 sm:px-6 animate-in zoom-in-95 duration-1000">
+      {/* الحاوية الرئيسية البانورامية (موسعة جداً) */}
+      <div className="w-full max-w-[95%] 2xl:max-w-screen-2xl mx-auto relative z-10 flex flex-col h-[92vh] pt-24 pb-6 px-4 sm:px-6 animate-in zoom-in-95 duration-1000">
         
         {/* Supreme AI Header (JARVIS Core) */}
         <div className="flex flex-col items-center mb-6 relative">
-          
           {/* Holographic Core Visualization */}
-          <div className="relative w-28 h-28 sm:w-36 sm:h-36 flex items-center justify-center mb-6 z-10">
-             {/* Outer Ring */}
+          <div className="relative w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center mb-6 z-10">
              <div className="absolute inset-0 border-t-2 border-l-2 border-cyan-500/80 rounded-full animate-[spin_4s_linear_infinite] shadow-[0_0_20px_rgba(6,182,212,0.4)]"></div>
-             {/* Middle Ring Reverse */}
              <div className="absolute inset-2 border-b-2 border-r-2 border-blue-500/80 rounded-full animate-[spin_3s_linear_infinite_reverse]"></div>
-             {/* Inner Ring */}
              <div className="absolute inset-4 border-2 border-dashed border-purple-500/50 rounded-full animate-[spin_6s_linear_infinite]"></div>
-             {/* Radar Sweep */}
              <div className="absolute inset-2 radar-sweep pointer-events-none opacity-50"></div>
-             
-             {/* Core Center Icon */}
-             <Cpu size={32} className="text-cyan-200 animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] relative z-10" />
+             <Cpu size={28} className="text-cyan-200 animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] relative z-10" />
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black text-white tracking-[0.3em] uppercase text-center relative z-10 jarvis-glow mb-2">
@@ -189,8 +158,8 @@ export default function ArthuronPage() {
           <div className="flex items-center gap-2"><Zap size={12} className="text-cyan-300 animate-pulse" /> {isRTL ? 'الطاقة:' : 'PWR:'} 100%</div>
         </div>
 
-        {/* Chat Container (JARVIS Interface) */}
-        <div className="flex-1 glass-card bg-black/50 border-x border-b border-cyan-500/30 rounded-b-3xl shadow-[0_0_80px_rgba(6,182,212,0.1)] flex flex-col overflow-hidden backdrop-blur-2xl relative">
+        {/* Chat Container (JARVIS Interface - Ultra Wide) */}
+        <div className="flex-1 glass-card bg-black/40 border-x border-b border-cyan-500/30 rounded-b-3xl shadow-[0_0_80px_rgba(6,182,212,0.1)] flex flex-col overflow-hidden backdrop-blur-md relative">
           
           {/* Cybernetic Background Details */}
           <Hexagon className="absolute top-10 left-10 text-cyan-500/10 z-0 pointer-events-none animate-[spin_20s_linear_infinite]" size={150} />
@@ -200,26 +169,26 @@ export default function ArthuronPage() {
           <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 scrollbar-thin scrollbar-thumb-cyan-500/50 scrollbar-track-transparent relative z-10">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
-                <div className={`max-w-[90%] sm:max-w-[80%] flex gap-4 sm:gap-6 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`w-full max-w-[95%] lg:max-w-[85%] xl:max-w-[75%] flex gap-4 sm:gap-6 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   
                   {/* Holographic Avatar */}
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 border backdrop-blur-md relative overflow-hidden ${
+                  <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 border backdrop-blur-md relative overflow-hidden ${
                     msg.role === 'user' 
                       ? 'bg-blue-950/60 border-blue-400/50 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.4)]' 
                       : 'bg-cyan-950/80 border-cyan-400/80 text-cyan-200 shadow-[0_0_20px_rgba(6,182,212,0.6)]'
                   }`}>
-                    {msg.role === 'user' ? <Terminal size={18} /> : <Orbit size={20} className="animate-[spin_4s_linear_infinite]" />}
+                    {msg.role === 'user' ? <Terminal size={20} /> : <Orbit size={24} className="animate-[spin_4s_linear_infinite]" />}
                   </div>
 
                   {/* Message Bubble */}
-                  <div className={`relative p-5 sm:p-6 rounded-3xl border backdrop-blur-xl shadow-lg ${
+                  <div className={`relative flex-1 p-5 sm:p-8 rounded-3xl border backdrop-blur-xl shadow-lg ${
                     msg.role === 'user'
                       ? 'bg-blue-900/20 border-blue-500/30 text-blue-50 rounded-tr-none'
-                      : 'bg-black/60 border-cyan-500/40 text-cyan-50 rounded-tl-none shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]'
+                      : 'bg-black/70 border-cyan-500/40 text-cyan-50 rounded-tl-none shadow-[inset_0_0_20px_rgba(6,182,212,0.1)]'
                   }`}>
-                    <p className="leading-[2] text-sm sm:text-base font-medium whitespace-pre-wrap break-words">{msg.text}</p>
-                    <div className="flex items-center gap-2 mt-3 opacity-60 justify-end">
-                       <span className="text-[9px] font-mono whitespace-nowrap text-cyan-400">{msg.time}</span>
+                    <p className="leading-[2.2] text-sm sm:text-lg font-medium whitespace-pre-wrap break-words">{msg.text}</p>
+                    <div className="flex items-center gap-2 mt-4 opacity-60 justify-end">
+                       <span className="text-[10px] font-mono whitespace-nowrap text-cyan-400">{msg.time}</span>
                     </div>
                   </div>
                 </div>
@@ -230,18 +199,18 @@ export default function ArthuronPage() {
             {isTyping && (
               <div className="flex justify-start animate-in fade-in duration-300">
                 <div className="flex gap-4 sm:gap-6">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shrink-0 border border-cyan-500/80 bg-cyan-950/80 text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.6)]">
-                    <Mic className="animate-pulse" size={18} />
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 border border-cyan-500/80 bg-cyan-950/80 text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.6)]">
+                    <Mic className="animate-pulse" size={20} />
                   </div>
-                  <div className="bg-black/60 border border-cyan-500/40 rounded-3xl rounded-tl-none p-4 sm:p-6 flex items-center gap-4 backdrop-blur-xl">
+                  <div className="bg-black/70 border border-cyan-500/40 rounded-3xl rounded-tl-none p-5 sm:p-8 flex items-center gap-4 backdrop-blur-xl">
                     {/* Audio Equalizer Effect */}
-                    <div className="flex items-end gap-1.5 h-6">
+                    <div className="flex items-end gap-1.5 h-8">
                       <div className="w-1.5 bg-cyan-400 rounded-full animate-[bounce_1s_infinite] h-full shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
                       <div className="w-1.5 bg-cyan-400 rounded-full animate-[bounce_1s_infinite_0.2s] h-3/4 shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
                       <div className="w-1.5 bg-cyan-400 rounded-full animate-[bounce_1s_infinite_0.4s] h-1/2 shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
                       <div className="w-1.5 bg-cyan-400 rounded-full animate-[bounce_1s_infinite_0.1s] h-4/5 shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
                     </div>
-                    <span className="text-cyan-400/80 font-mono text-[10px] tracking-[0.2em] uppercase hidden sm:block ml-2">
+                    <span className="text-cyan-400/80 font-mono text-xs tracking-[0.2em] uppercase hidden sm:block ml-3">
                       {isRTL ? 'معالجة كمية...' : 'QUANTUM PROCESSING...'}
                     </span>
                   </div>
@@ -251,27 +220,27 @@ export default function ArthuronPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area (Console Terminal) */}
+          {/* Input Area (Console Terminal - 100% Width) */}
           <div className="p-4 sm:p-6 bg-black/80 border-t border-cyan-500/30 relative z-10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-            <form onSubmit={handleSendMessage} className="relative flex items-center group max-w-5xl mx-auto">
+            <form onSubmit={handleSendMessage} className="relative flex items-center group w-full">
               <div className="absolute inset-y-0 left-4 sm:left-6 flex items-center pointer-events-none z-20" style={isRTL ? { right: '24px', left: 'auto' } : { left: '24px' }}>
-                <span className="text-cyan-500 font-black text-lg animate-pulse">{'>'}</span>
+                <span className="text-cyan-500 font-black text-xl animate-pulse">{'>'}</span>
               </div>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder={isRTL ? 'أدخل الأمر لآرثرون...' : 'Enter command for Arthuron...'}
-                className="w-full bg-cyan-950/20 border border-cyan-500/40 rounded-2xl py-4 sm:py-5 px-12 sm:px-14 text-cyan-50 placeholder-cyan-500/40 focus:outline-none focus:border-cyan-400 focus:bg-cyan-950/40 transition-all shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] focus:shadow-[0_0_30px_rgba(6,182,212,0.2)] font-mono text-sm sm:text-base backdrop-blur-xl"
+                className="w-full bg-cyan-950/20 border border-cyan-500/40 rounded-2xl sm:rounded-full py-4 sm:py-6 px-12 sm:px-16 text-cyan-50 placeholder-cyan-500/40 focus:outline-none focus:border-cyan-400 focus:bg-cyan-950/40 transition-all shadow-[inset_0_0_20px_rgba(6,182,212,0.1)] focus:shadow-[0_0_30px_rgba(6,182,212,0.2)] font-mono text-sm sm:text-lg backdrop-blur-xl"
                 dir={isRTL ? 'rtl' : 'ltr'}
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isTyping}
-                className="absolute right-2 sm:right-3 (isRTL ? 'left-2 right-auto' : 'right-2') p-3 sm:p-4 bg-cyan-600/20 hover:bg-cyan-600 border border-cyan-500/50 text-cyan-300 hover:text-black rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(6,182,212,0.2)] flex items-center justify-center group-hover:border-cyan-400"
-                style={isRTL ? { left: '8px', right: 'auto' } : { right: '8px' }}
+                className="absolute right-2 sm:right-3 (isRTL ? 'left-2 right-auto' : 'right-2') p-3 sm:p-5 bg-cyan-600/20 hover:bg-cyan-600 border border-cyan-500/50 text-cyan-300 hover:text-black rounded-xl sm:rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(6,182,212,0.2)] flex items-center justify-center group-hover:border-cyan-400"
+                style={isRTL ? { left: '12px', right: 'auto' } : { right: '12px' }}
               >
-                <Send size={18} className={isRTL ? 'rotate-180' : ''} />
+                <Send size={22} className={isRTL ? 'rotate-180' : ''} />
               </button>
             </form>
           </div>
