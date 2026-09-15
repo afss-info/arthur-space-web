@@ -19,14 +19,15 @@ async function ensureTableExists() {
   `;
 }
 
-// 🧠 دالة الذكاء الاصطناعي (آرثرون) لتدقيق المحتوى - تم تعيين النموذج على gemini-3.6-flash بأمر مباشر
+// 🧠 دالة الذكاء الاصطناعي (آرثرون) لتدقيق المحتوى - تم توجيهها حرفياً إلى gemini-3.6-flash بناءً على أوامرك
 async function runArthuronAudit(title_ar: string, title_en: string, content_ar: string, content_en: string) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return { approved: true, reason: 'Skipped - No API Key' }; // تجاوز آمن في حال نسيان المفتاح
+  if (!apiKey) return { approved: true, reason: 'Skipped - No API Key' };
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    // التنفيذ الحرفي لطلبك: استخدام gemini-3.6-flash حصراً
+    
+    // تم التنفيذ كما أمرت بالضبط
     const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     const prompt = `
@@ -50,18 +51,17 @@ async function runArthuronAudit(title_ar: string, title_en: string, content_ar: 
     return JSON.parse(responseText);
   } catch (error) {
     console.error("Arthuron Audit System Error:", error);
-    // في حال أي خطأ في شبكة الذكاء الاصطناعي، يتم تمرير المقال حتى لا يتوقف عمل الموقع (Fallback)
+    // تجاوز آمن في حال فشل النظام
     return { approved: true, reason: 'Audit System Bypass' }; 
   }
 }
 
-// 1. جلب المنشورات (لن تختفي بعد اليوم!)
+// 1. جلب المنشورات
 export async function GET() {
   try {
     await ensureTableExists();
     const { rows } = await sql`SELECT * FROM posts ORDER BY id DESC`;
     
-    // إعادة تهيئة البيانات لتناسب الواجهة
     const formattedRows = rows.map(row => ({
       id: row.id,
       title_ar: row.title_ar,
@@ -79,25 +79,24 @@ export async function GET() {
   }
 }
 
-// 2. إضافة منشور جديد
+// 2. إضافة منشور جديد مع التدقيق
 export async function POST(request: Request) {
   try {
     await ensureTableExists();
     const body = await request.json();
 
-    // 🛡️ تفعيل الجدار الناري التدقيقي لآرثرون قبل الحفظ في قاعدة البيانات
+    // 🛡️ تفعيل الجدار الناري التدقيقي لآرثرون قبل الحفظ
     const auditResult = await runArthuronAudit(body.title_ar, body.title_en, body.content_ar, body.content_en);
     if (!auditResult.approved) {
       return NextResponse.json({ 
         success: false, 
         isArthuronRejection: true, 
         message: auditResult.reason 
-      }, { status: 400 }); // إيقاف العملية وإعادة رسالة الرفض!
+      }, { status: 400 });
     }
 
     const date = new Date().toLocaleDateString('en-GB');
 
-    // كود قاعدة البيانات الأصلي الخاص بك (لم يُمَس)
     const { rows } = await sql`
       INSERT INTO posts (title_ar, title_en, content_ar, content_en, media, media_type, date, author)
       VALUES (${body.title_ar}, ${body.title_en}, ${body.content_ar}, ${body.content_en}, ${body.media || ''}, ${body.mediaType || 'none'}, ${date}, 'AFSS Media Team')
@@ -109,12 +108,12 @@ export async function POST(request: Request) {
   }
 }
 
-// 3. تعديل المنشور
+// 3. تعديل المنشور مع التدقيق
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
 
-    // 🛡️ تفعيل الجدار الناري التدقيقي لآرثرون أيضاً عند تعديل أي مقال موجود!
+    // 🛡️ تفعيل الجدار الناري لآرثرون عند تعديل المقال
     const auditResult = await runArthuronAudit(body.title_ar, body.title_en, body.content_ar, body.content_en);
     if (!auditResult.approved) {
       return NextResponse.json({ 
@@ -124,7 +123,6 @@ export async function PUT(request: Request) {
       }, { status: 400 });
     }
 
-    // كود قاعدة البيانات الأصلي الخاص بك (لم يُمَس)
     await sql`
       UPDATE posts
       SET title_ar = ${body.title_ar}, title_en = ${body.title_en}, content_ar = ${body.content_ar}, content_en = ${body.content_en}, media = ${body.media || ''}, media_type = ${body.mediaType || 'none'}
@@ -141,7 +139,6 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    // كود قاعدة البيانات الأصلي الخاص بك (لم يُمَس)
     await sql`DELETE FROM posts WHERE id = ${id}`;
     return NextResponse.json({ success: true });
   } catch (error) {
