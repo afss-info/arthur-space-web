@@ -1,31 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Rocket, Target, Activity, Lock, Orbit, Crosshair, Fingerprint, Zap, Atom, Calculator, Cpu, FlaskConical, Network, Stethoscope, CheckCircle2, ShieldAlert, Telescope, Database, Users, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Rocket, Target, Activity, Lock, Orbit, Crosshair, Fingerprint, Zap, Atom, Calculator, Cpu, FlaskConical, Network, Stethoscope, CheckCircle2, ShieldAlert, Database, Users, Loader2 } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
-
-// مكون النجوم المتساقطة الخارق
-const StarsBackground = () => {
-  const [stars, setStars] = useState<any[]>([]);
-  useEffect(() => {
-    setStars(Array.from({ length: 50 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      animationDuration: `${Math.random() * 3 + 2}s`,
-      animationDelay: `${Math.random() * 5}s`,
-      size: Math.random() * 2 + 1,
-    })));
-  }, []);
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {stars.map((star) => (
-        <div key={star.id} className="absolute bg-white rounded-full shadow-[0_0_12px_#fff] animate-fall"
-          style={{ left: star.left, width: `${star.size}px`, height: `${star.size}px`, animationDuration: star.animationDuration, animationDelay: star.animationDelay, top: '-5%' }}
-        />
-      ))}
-    </div>
-  );
-};
 
 export default function ProgramsPage() {
   const { t, isRTL } = useLang();
@@ -61,7 +38,7 @@ export default function ProgramsPage() {
           setIsModalOpen(false); 
           setSubmitted(false); 
           setEmail(''); 
-        }, 4000); // إبقاء رسالة النجاح لـ 4 ثوانٍ
+        }, 4000);
         
       } catch (error) {
         console.error("Transmission failed", error);
@@ -72,24 +49,22 @@ export default function ProgramsPage() {
   };
 
   return (
-    <div className="page-section relative overflow-hidden bg-[#01030a] min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
+    // تم إزالة bg-[#01030a] لكي تظهر نجوم الموقع الأصلية من الخلفية
+    <div className="page-section relative overflow-hidden min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
       
       {/* CSS Effects */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes zero-gravity-1 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(1deg); } }
         @keyframes zero-gravity-2 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(15px) rotate(-1deg); } }
-        @keyframes fall { 0% { transform: translateY(-10vh) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) translateX(-20vw); opacity: 0; } }
         @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(500%); } }
         
         .animate-zg-1 { animation: zero-gravity-1 8s ease-in-out infinite; }
         .animate-zg-2 { animation: zero-gravity-2 10s ease-in-out infinite; }
-        .animate-fall { animation-name: fall; animation-timing-function: linear; animation-iteration-count: infinite; }
         .animate-scan { animation: scanline 3s linear infinite; }
         .matrix-text { text-shadow: 0 0 8px rgba(59,130,246,0.8); }
       `}} />
 
-      {/* Background Layers */}
-      <StarsBackground />
+      {/* الشبكة السيبرانية الشفافة تتداخل مع النجوم الأصلية للموقع */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none z-0"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -178,7 +153,7 @@ export default function ProgramsPage() {
                     { icon: FlaskConical, label: isRTL ? 'كيمياء' : 'Chemistry' },
                     { icon: Activity, label: isRTL ? 'أحياء' : 'Biology' },
                     { icon: Cpu, label: isRTL ? 'برمجة' : 'Programming' },
-                    { icon: Telescope, label: isRTL ? 'علوم الفضاء' : 'Space Science' }
+                    { icon: Orbit, label: isRTL ? 'علوم الفضاء' : 'Space Science' }
                   ].map((track, idx) => (
                     <div key={idx} className="flex items-center gap-3 bg-blue-900/10 border border-blue-500/20 p-3 rounded-lg hover:bg-blue-500/20 hover:border-blue-400/50 transition-colors">
                       <track.icon size={16} className="text-blue-400 shrink-0"/>
