@@ -4,12 +4,21 @@ import React, { useState, useEffect } from 'react';
 import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video, Clock, RefreshCcw, Sparkles } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
-// خزنة الفضاء العميق: فيديوهات سُدم ومجرات سينمائية خالية من الكلام
+// 🚀 سيرفرات ESA و NASA المباشرة (ملفات MP4 خام - لا يوجد يوتيوب نهائياً)
+const EARTH_VAULT = [
+  "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/18/The_Earth_rotating_-_A_time-lapse_video_from_space.webm/The_Earth_rotating_-_A_time-lapse_video_from_space.webm.1080p.vp9.webm",
+  "https://cdn.spacetelescope.org/archives/videos/hd_1080_p25/hubblecast82c.mp4",
+  "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/Orbiting_Earth_at_Night.webm/Orbiting_Earth_at_Night.webm.1080p.vp9.webm",
+  "https://cdn.eso.org/archives/videos/hd_1080_p25/eso1616c.mp4"
+];
+
 const DEEP_SPACE_VAULT = [
-  "https://www.youtube.com/embed/Un5SEJ8MyPc?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=Un5SEJ8MyPc", // جيمس ويب - سدم
-  "https://www.youtube.com/embed/17jymDn0W6U?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=17jymDn0W6U", // هابل - رحلة ثلاثية الأبعاد
-  "https://www.youtube.com/embed/rQcRNzeX40M?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=rQcRNzeX40M", // أعمدة الخلق
-  "https://www.youtube.com/embed/GoZpIq1Eq5U?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=GoZpIq1Eq5U"  // سديم الجبار
+  "https://cdn.spacetelescope.org/archives/videos/hd_1080_p25/heic1509a.mp4", // أعمدة الخلق
+  "https://cdn.spacetelescope.org/archives/videos/hd_1080_p25/heic1302a.mp4", // سديم الجبار
+  "https://cdn.spacetelescope.org/archives/videos/hd_1080_p25/heic2018a.mp4", // الشعاب الكونية
+  "https://cdn.spacetelescope.org/archives/videos/hd_1080_p25/heic1808a.mp4", // سديم البحيرة
+  "https://cdn.spacetelescope.org/archives/videos/hd_1080_p25/heic1608a.mp4", // سديم الفقاعة
+  "https://cdn.eso.org/archives/videos/hd_1080_p25/eso2207a.mp4" // الثقب الأسود
 ];
 
 export default function ResearchPage() {
@@ -29,43 +38,66 @@ export default function ResearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // === خوارزمية المحاكاة المدارية (الابتكار الألماسي) ===
+  // === خوارزمية المحاكاة المدارية وعدم التكرار (Anti-Repeat) ===
   const [orbitPhase, setOrbitPhase] = useState<'EARTH' | 'DEEP_SPACE'>('EARTH');
-  const [cycleCountdown, setCycleCountdown] = useState(2700); // 45 دقيقة بالثواني
-  const [currentNebula, setCurrentNebula] = useState(DEEP_SPACE_VAULT[0]);
+  const [cycleCountdown, setCycleCountdown] = useState(2700); 
+  const [currentVideo, setCurrentVideo] = useState('');
+  const [earthPool, setEarthPool] = useState([...EARTH_VAULT]);
+  const [spacePool, setSpacePool] = useState([...DEEP_SPACE_VAULT]);
 
+  // دالة اختيار فيديو جديد عشوائي بدون تكرار
+  const pickNextVideo = (phase: 'EARTH' | 'DEEP_SPACE') => {
+    if (phase === 'EARTH') {
+      let pool = earthPool.length > 0 ? earthPool : [...EARTH_VAULT];
+      const idx = Math.floor(Math.random() * pool.length);
+      const nextVid = pool[idx];
+      pool.splice(idx, 1);
+      setEarthPool(pool);
+      setCurrentVideo(nextVid);
+    } else {
+      let pool = spacePool.length > 0 ? spacePool : [...DEEP_SPACE_VAULT];
+      const idx = Math.floor(Math.random() * pool.length);
+      const nextVid = pool[idx];
+      pool.splice(idx, 1);
+      setSpacePool(pool);
+      setCurrentVideo(nextVid);
+    }
+  };
+
+  // تهيئة الفيديو الأول عند التحميل
   useEffect(() => {
-    // تحديث المؤقت المداري كل ثانية
+    pickNextVideo(orbitPhase);
+  }, []);
+
+  // تحديث المؤقت المداري (دورة 45 دقيقة)
+  useEffect(() => {
     const updateCycle = () => {
        const now = Math.floor(Date.now() / 1000);
-       const orbitTime = now % 5400; // دورة كاملة 90 دقيقة
+       const orbitTime = now % 5400; // 90 دقيقة
        if (orbitTime < 2700) {
-          if (orbitPhase !== 'EARTH') setOrbitPhase('EARTH');
+          if (orbitPhase !== 'EARTH') {
+            setOrbitPhase('EARTH');
+            pickNextVideo('EARTH');
+          }
           setCycleCountdown(2700 - orbitTime);
        } else {
           if (orbitPhase !== 'DEEP_SPACE') {
               setOrbitPhase('DEEP_SPACE');
-              // اختيار سديم عشوائي عند الدخول في الظلام
-              setCurrentNebula(DEEP_SPACE_VAULT[Math.floor(Math.random() * DEEP_SPACE_VAULT.length)]);
+              pickNextVideo('DEEP_SPACE');
           }
           setCycleCountdown(5400 - orbitTime);
        }
     };
     const interval = setInterval(updateCycle, 1000);
-    updateCycle();
     return () => clearInterval(interval);
   }, [orbitPhase]);
 
-  // دالة لكسر المؤقت يدوياً (للتجربة كقائد)
+  // كسر المدار يدوياً للتجربة
   const forceTogglePhase = () => {
-    if (orbitPhase === 'EARTH') {
-      setOrbitPhase('DEEP_SPACE');
-      setCurrentNebula(DEEP_SPACE_VAULT[Math.floor(Math.random() * DEEP_SPACE_VAULT.length)]);
-      setCycleCountdown(2700); // إعادة تعيين لـ 45 دقيقة خيالية
-    } else {
-      setOrbitPhase('EARTH');
-      setCycleCountdown(2700);
-    }
+    const nextPhase = orbitPhase === 'EARTH' ? 'DEEP_SPACE' : 'EARTH';
+    setOrbitPhase(nextPhase);
+    pickNextVideo(nextPhase);
+    setCycleCountdown(2700);
   };
 
   const formatTime = (seconds: number) => {
@@ -73,7 +105,6 @@ export default function ResearchPage() {
     const s = (seconds % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
-  // ===================================================
 
   useEffect(() => {
     fetch('/api/nasa', { cache: 'no-store' }).then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
@@ -154,9 +185,7 @@ export default function ResearchPage() {
     fetchLiveFeed('');
   }
 
-  // متغيرات التصميم الديناميكي حسب الطور المداري
   const isEarth = orbitPhase === 'EARTH';
-  const themeColor = isEarth ? 'emerald' : 'purple';
 
   return (
     <div className="page-section relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -192,7 +221,7 @@ export default function ResearchPage() {
         {/* TIER 1: THE DYNAMIC ORBITAL BROADCAST SYSTEM (DOBS) */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 mb-12">
           
-          {/* MAIN PANEL: DYNAMIC FEED (Takes 8 columns) */}
+          {/* MAIN PANEL: DYNAMIC HTML5 VIDEO (No YouTube) */}
           <div className={`xl:col-span-8 relative glass-card border bg-black/60 rounded-[30px] overflow-hidden p-1 flex flex-col group backdrop-blur-xl transition-all duration-1000 ${isEarth ? 'border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)]' : 'border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.15)]'} h-full`}>
             <div className={`absolute inset-0 blur-[50px] transition-colors duration-1000 ${isEarth ? 'bg-emerald-500/5 group-hover:bg-emerald-500/15' : 'bg-purple-500/5 group-hover:bg-purple-500/15'}`}></div>
 
@@ -207,13 +236,12 @@ export default function ResearchPage() {
                       {isEarth ? (isRTL ? 'عين على الأرض' : 'EYE ON EARTH') : (isRTL ? 'استكشاف الفضاء العميق' : 'DEEP SPACE EXPLORATION')}
                     </h2>
                     <p className={`text-[10px] sm:text-xs font-mono tracking-widest uppercase mt-1 transition-colors duration-1000 ${isEarth ? 'text-emerald-400/80' : 'text-purple-400/80'}`}>
-                      {isEarth ? (isRTL ? 'الطور الأول: نهار المدار (4K)' : 'PHASE 1: ORBITAL DAYLIGHT (4K)') : (isRTL ? 'الطور الثاني: ظلام المدار (سُدم)' : 'PHASE 2: ORBITAL NIGHT (NEBULAE)')}
+                      {isEarth ? (isRTL ? 'الطور الأول: مدار الأرض المباشر (4K)' : 'PHASE 1: LIVE EARTH ORBIT (4K)') : (isRTL ? 'الطور الثاني: استكشاف السدم والمجرات' : 'PHASE 2: NEBULA & GALAXY SCAN')}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  {/* زر التخطي اليدوي للخوارزمية */}
                   <button onClick={forceTogglePhase} title={isRTL ? "كسر المدار يدوياً" : "Force Phase Toggle"} className={`p-2 rounded-lg border transition-all hover:scale-110 ${isEarth ? 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20' : 'border-purple-500/30 text-purple-400 hover:bg-purple-500/20'}`}>
                      <RefreshCcw size={14} className={orbitPhase === 'DEEP_SPACE' ? 'animate-spin-slow' : ''} />
                   </button>
@@ -224,36 +252,31 @@ export default function ResearchPage() {
                 </div>
               </div>
 
-              {/* شاشة البث السينمائية الهجينة */}
+              {/* مشغل HTML5 المباشر (بدون YouTube أو Vimeo إطلاقاً) */}
               <div className={`relative w-full flex-1 rounded-2xl overflow-hidden border aspect-video bg-black transition-all duration-1000 group/screen ${isEarth ? 'border-emerald-500/40 shadow-[inset_0_0_50px_rgba(16,185,129,0.2)]' : 'border-purple-500/40 shadow-[inset_0_0_50px_rgba(168,85,247,0.2)]'}`}>
                  <Crosshair className={`absolute top-4 left-4 z-20 pointer-events-none animate-pulse transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`} size={28} />
                  <Crosshair className={`absolute bottom-4 right-4 z-20 pointer-events-none transform rotate-180 animate-pulse transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`} size={28} />
                  <div className={`absolute top-0 left-0 w-full h-[2px] opacity-40 animate-scan-vert z-20 pointer-events-none transition-all duration-1000 ${isEarth ? 'bg-emerald-400/50 shadow-[0_0_20px_rgba(16,185,129,1)]' : 'bg-purple-400/50 shadow-[0_0_20px_rgba(168,85,247,1)]'}`}></div>
                  
-                 {/* طبقة تظليل للحواف (Vignette) لإخفاء أطراف يوتيوب وجعله يبدو كنظام داخلي */}
-                 <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]"></div>
+                 <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]"></div>
 
-                 {isEarth ? (
-                    // فيديو الأرض (سيرفر داخلي MP4 ثابت)
-                    <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-1000">
-                      <source src="https://sylvan.apple.com/Videos/comp_GL_G004_C010_v03_6Mbps.mp4" type="video/mp4" />
-                    </video>
-                 ) : (
-                    // فيديو السدم والمجرات (سيرفر يوتيوب مخفي تماماً وبدون أزرار)
-                    <iframe
-                      className="absolute inset-0 w-full h-full pointer-events-none z-10 transform scale-[1.15] transition-opacity duration-1000" // التكبير يخفي الشعار والأطراف
-                      src={currentNebula}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                 )}
+                 {/* مُشغل فيديو HTML5 يستدعي الدالة pickNextVideo عند انتهاء المقطع لجلب مقطع جديد */}
+                 <video
+                   key={currentVideo} // هذه الميزة تجعل الفيديو يعمل فوراً عند تغير الرابط
+                   autoPlay
+                   muted
+                   playsInline
+                   onEnded={() => pickNextVideo(orbitPhase)}
+                   className="absolute inset-0 w-full h-full object-cover z-10"
+                 >
+                   <source src={currentVideo} type="video/mp4" />
+                 </video>
 
                  <div className="absolute bottom-4 left-4 z-30 pointer-events-none">
                    <div className={`bg-black/80 backdrop-blur-md px-4 py-2.5 rounded-lg border text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)] transition-all duration-1000 ${isEarth ? 'border-emerald-500/40 text-emerald-400' : 'border-purple-500/40 text-purple-400'}`}>
                      <span className="flex items-center gap-2">
                        <Video size={14} className="text-white animate-pulse"/> 
-                       {isEarth ? 'ORBITAL CAMERA [ACTIVE]' : 'DEEP SPACE TELESCOPE [ACTIVE]'}
+                       {isEarth ? 'ESA ORBITAL CAMERA [ACTIVE]' : 'HUBBLE/WEB TELESCOPE [ACTIVE]'}
                      </span>
                      <span className={`text-white border-t pt-1.5 transition-colors duration-1000 ${isEarth ? 'border-emerald-500/30' : 'border-purple-500/30'}`}>
                        {isEarth ? 'ALT: ~408 KM | V: 27,600 KM/H' : 'LOC: DEEP GALAXY | LIGHTYEARS AWAY'}
@@ -270,13 +293,13 @@ export default function ResearchPage() {
               </div>
 
               <div className={`mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono uppercase tracking-widest transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`}>
-                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'خوارزمية محاكاة نشطة' : 'ACTIVE SIMULATION ALGORITHM'}</span>
-                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse"/> {isRTL ? 'نظام هجين مستقر' : 'STABLE HYBRID SYSTEM'}</span>
+                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'خوارزمية محاكاة بدون تكرار' : 'ANTI-REPEAT ALGORITHM'}</span>
+                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse"/> {isRTL ? 'نظام هجين مباشر' : 'DIRECT HYBRID SYSTEM'}</span>
               </div>
             </div>
           </div>
 
-          {/* RIGHT SIDEBAR: ISS & NEO (Takes 4 columns - Compact & Stacked) */}
+          {/* RIGHT SIDEBAR: ISS & NEO */}
           <div className="xl:col-span-4 flex flex-col gap-6 sm:gap-8 h-full">
             
             {/* ISS Tracker Panel */}
