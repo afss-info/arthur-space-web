@@ -1,8 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video } from 'lucide-react';
+import { Search, Telescope, Globe, Satellite, FlaskConical, Atom, Star, ExternalLink, BookOpen, Download, Loader2, Crosshair, Activity, Database, Radar, Zap, Shield, Skull, Map, Users, Navigation, Earth, Lock, Video, Clock, RefreshCcw, Sparkles } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
+
+// خزنة الفضاء العميق: فيديوهات سُدم ومجرات سينمائية خالية من الكلام
+const DEEP_SPACE_VAULT = [
+  "https://www.youtube.com/embed/Un5SEJ8MyPc?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=Un5SEJ8MyPc", // جيمس ويب - سدم
+  "https://www.youtube.com/embed/17jymDn0W6U?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=17jymDn0W6U", // هابل - رحلة ثلاثية الأبعاد
+  "https://www.youtube.com/embed/rQcRNzeX40M?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=rQcRNzeX40M", // أعمدة الخلق
+  "https://www.youtube.com/embed/GoZpIq1Eq5U?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=GoZpIq1Eq5U"  // سديم الجبار
+];
 
 export default function ResearchPage() {
   const { t, isRTL } = useLang();
@@ -21,6 +29,52 @@ export default function ResearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
+  // === خوارزمية المحاكاة المدارية (الابتكار الألماسي) ===
+  const [orbitPhase, setOrbitPhase] = useState<'EARTH' | 'DEEP_SPACE'>('EARTH');
+  const [cycleCountdown, setCycleCountdown] = useState(2700); // 45 دقيقة بالثواني
+  const [currentNebula, setCurrentNebula] = useState(DEEP_SPACE_VAULT[0]);
+
+  useEffect(() => {
+    // تحديث المؤقت المداري كل ثانية
+    const updateCycle = () => {
+       const now = Math.floor(Date.now() / 1000);
+       const orbitTime = now % 5400; // دورة كاملة 90 دقيقة
+       if (orbitTime < 2700) {
+          if (orbitPhase !== 'EARTH') setOrbitPhase('EARTH');
+          setCycleCountdown(2700 - orbitTime);
+       } else {
+          if (orbitPhase !== 'DEEP_SPACE') {
+              setOrbitPhase('DEEP_SPACE');
+              // اختيار سديم عشوائي عند الدخول في الظلام
+              setCurrentNebula(DEEP_SPACE_VAULT[Math.floor(Math.random() * DEEP_SPACE_VAULT.length)]);
+          }
+          setCycleCountdown(5400 - orbitTime);
+       }
+    };
+    const interval = setInterval(updateCycle, 1000);
+    updateCycle();
+    return () => clearInterval(interval);
+  }, [orbitPhase]);
+
+  // دالة لكسر المؤقت يدوياً (للتجربة كقائد)
+  const forceTogglePhase = () => {
+    if (orbitPhase === 'EARTH') {
+      setOrbitPhase('DEEP_SPACE');
+      setCurrentNebula(DEEP_SPACE_VAULT[Math.floor(Math.random() * DEEP_SPACE_VAULT.length)]);
+      setCycleCountdown(2700); // إعادة تعيين لـ 45 دقيقة خيالية
+    } else {
+      setOrbitPhase('EARTH');
+      setCycleCountdown(2700);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+  // ===================================================
+
   useEffect(() => {
     fetch('/api/nasa', { cache: 'no-store' }).then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
     fetch('/api/earth').then(res => res.json()).then(data => setEarthData(data)).catch(console.error);
@@ -29,9 +83,7 @@ export default function ResearchPage() {
     const fetchISS = () => fetch('/api/iss').then(res => res.json()).then(data => setIssData(data.error ? null : data)).catch(console.error);
     fetchISS();
     const issInterval = setInterval(fetchISS, 5000);
-
     fetchLiveFeed('');
-
     return () => clearInterval(issInterval);
   }, []);
 
@@ -46,7 +98,6 @@ export default function ResearchPage() {
       const [papersRes, newsRes] = await Promise.all([ fetch(papersUrl), fetch(newsUrl) ]);
       const papers = await papersRes.json();
       const news = await newsRes.json();
-
       setPapersData(papers.error ? [] : papers);
       setNewsData(news.results || []);
     } catch (error) {
@@ -61,29 +112,24 @@ export default function ResearchPage() {
     if (isRTL && !isTranslating) {
       const translateEverything = async () => {
         setIsTranslating(true);
-        
         if (nasaData && !nasaData.ar_title && !nasaData.error) {
           const res = await fetch('/api/translate', { method: 'POST', body: JSON.stringify({ text: [nasaData.title, nasaData.explanation], target: 'ar' }) }).then(r=>r.json());
           if (res.translatedText) setNasaData((prev: any) => ({ ...prev, ar_title: res.translatedText[0], ar_explanation: res.translatedText[1] }));
         }
-
         if (earthData && !earthData.ar_caption && !earthData.error) {
            const res = await fetch('/api/translate', { method: 'POST', body: JSON.stringify({ text: earthData.caption, target: 'ar' }) }).then(r=>r.json());
            if (res.translatedText) setEarthData((prev: any) => ({ ...prev, ar_caption: res.translatedText }));
         }
-
         if (papersData.length > 0 && !papersData[0].ar_title) {
            const titles = papersData.map(p => p.title);
            const res = await fetch('/api/translate', { method: 'POST', body: JSON.stringify({ text: titles, target: 'ar' }) }).then(r=>r.json());
            if (res.translatedText) setPapersData(prev => prev.map((p, i) => ({ ...p, ar_title: res.translatedText[i] })));
         }
-
         if (newsData.length > 0 && !newsData[0].ar_title) {
            const titles = newsData.map(n => n.title);
            const res = await fetch('/api/translate', { method: 'POST', body: JSON.stringify({ text: titles, target: 'ar' }) }).then(r=>r.json());
            if (res.translatedText) setNewsData(prev => prev.map((n, i) => ({ ...n, ar_title: res.translatedText[i] })));
         }
-
         setIsTranslating(false);
       };
       translateEverything();
@@ -107,6 +153,10 @@ export default function ResearchPage() {
     setSearched(false);
     fetchLiveFeed('');
   }
+
+  // متغيرات التصميم الديناميكي حسب الطور المداري
+  const isEarth = orbitPhase === 'EARTH';
+  const themeColor = isEarth ? 'emerald' : 'purple';
 
   return (
     <div className="page-section relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -139,76 +189,89 @@ export default function ResearchPage() {
           <p className="text-blue-200/60 max-w-2xl mx-auto text-sm sm:text-base tracking-wide font-medium">{t('research_subtitle')}</p>
         </div>
 
-        {/* TIER 1: LIVE EARTH (Huge) + SIDEBAR [ISS & NEO] (Compact) */}
+        {/* TIER 1: THE DYNAMIC ORBITAL BROADCAST SYSTEM (DOBS) */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 sm:gap-8 mb-12">
           
-          {/* MAIN PANEL: SECURE EARTH FEED (Takes 8 columns) */}
-          <div className="xl:col-span-8 relative glass-card border border-emerald-500/30 bg-black/60 rounded-[30px] overflow-hidden p-1 flex flex-col group backdrop-blur-xl shadow-[0_0_50px_rgba(16,185,129,0.15)] h-full">
-            <div className="absolute inset-0 bg-emerald-500/5 blur-[50px] group-hover:bg-emerald-500/15 transition-colors duration-700"></div>
+          {/* MAIN PANEL: DYNAMIC FEED (Takes 8 columns) */}
+          <div className={`xl:col-span-8 relative glass-card border bg-black/60 rounded-[30px] overflow-hidden p-1 flex flex-col group backdrop-blur-xl transition-all duration-1000 ${isEarth ? 'border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)]' : 'border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.15)]'} h-full`}>
+            <div className={`absolute inset-0 blur-[50px] transition-colors duration-1000 ${isEarth ? 'bg-emerald-500/5 group-hover:bg-emerald-500/15' : 'bg-purple-500/5 group-hover:bg-purple-500/15'}`}></div>
 
             <div className="p-4 sm:p-8 flex flex-col h-full relative z-10">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-emerald-500/20 pb-4">
+              <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b pb-4 transition-colors duration-1000 ${isEarth ? 'border-emerald-500/20' : 'border-purple-500/20'}`}>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-950/60 flex items-center justify-center border border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:scale-110 transition-transform duration-500">
-                    <Earth className="text-emerald-400 animate-[spin_10s_linear_infinite]" size={24} />
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border group-hover:scale-110 transition-all duration-1000 ${isEarth ? 'bg-emerald-950/60 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'bg-purple-950/60 border-purple-500/40 shadow-[0_0_20px_rgba(168,85,247,0.3)]'}`}>
+                    {isEarth ? <Earth className="text-emerald-400 animate-[spin_10s_linear_infinite]" size={24} /> : <Sparkles className="text-purple-400 animate-pulse" size={24} />}
                   </div>
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-black text-white tracking-widest uppercase drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">
-                      {isRTL ? 'عين على الأرض' : 'EYE ON EARTH'}
+                    <h2 className={`text-xl sm:text-2xl font-black tracking-widest uppercase transition-colors duration-1000 ${isEarth ? 'text-white drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'text-white drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]'}`}>
+                      {isEarth ? (isRTL ? 'عين على الأرض' : 'EYE ON EARTH') : (isRTL ? 'استكشاف الفضاء العميق' : 'DEEP SPACE EXPLORATION')}
                     </h2>
-                    <p className="text-[10px] sm:text-xs text-emerald-400/80 font-mono tracking-widest uppercase mt-1">
-                      {isRTL ? 'تغطية مدارية مستمرة 24/7 (4K)' : 'CONTINUOUS ORBITAL FEED 24/7 (4K)'}
+                    <p className={`text-[10px] sm:text-xs font-mono tracking-widest uppercase mt-1 transition-colors duration-1000 ${isEarth ? 'text-emerald-400/80' : 'text-purple-400/80'}`}>
+                      {isEarth ? (isRTL ? 'الطور الأول: نهار المدار (4K)' : 'PHASE 1: ORBITAL DAYLIGHT (4K)') : (isRTL ? 'الطور الثاني: ظلام المدار (سُدم)' : 'PHASE 2: ORBITAL NIGHT (NEBULAE)')}
                     </p>
                   </div>
                 </div>
 
-                <span className="flex items-center gap-2 text-[10px] sm:text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/40 px-4 py-2 rounded-lg font-black tracking-widest uppercase animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]"></div>
-                  <span className="hidden sm:inline">{isRTL ? 'تغذية الفضاء العميق' : 'DEEP SPACE LINK'}</span>
-                  <span className="sm:hidden">ACTIVE</span>
-                </span>
+                <div className="flex items-center gap-3">
+                  {/* زر التخطي اليدوي للخوارزمية */}
+                  <button onClick={forceTogglePhase} title={isRTL ? "كسر المدار يدوياً" : "Force Phase Toggle"} className={`p-2 rounded-lg border transition-all hover:scale-110 ${isEarth ? 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20' : 'border-purple-500/30 text-purple-400 hover:bg-purple-500/20'}`}>
+                     <RefreshCcw size={14} className={orbitPhase === 'DEEP_SPACE' ? 'animate-spin-slow' : ''} />
+                  </button>
+                  <span className={`flex items-center gap-2 text-[10px] sm:text-xs px-4 py-2 rounded-lg font-black tracking-widest uppercase shadow-lg transition-all duration-1000 ${isEarth ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-purple-500/10 text-purple-400 border border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.3)]'}`}>
+                    <Clock size={12} className="animate-pulse" />
+                    <span>{formatTime(cycleCountdown)}</span>
+                  </span>
+                </div>
               </div>
 
-              {/* مُشغل الفيديو الخام المباشر للارض من الفضاء - لا يوجد يوتيوب أو iframes هنا! */}
-              <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-emerald-500/40 aspect-video bg-black shadow-[inset_0_0_50px_rgba(16,185,129,0.2)] group/screen">
-                 <Crosshair className="absolute top-4 left-4 text-emerald-400/60 z-20 pointer-events-none animate-pulse" size={28} />
-                 <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180 animate-pulse" size={28} />
-                 <div className="absolute top-0 left-0 w-full h-[2px] bg-emerald-400/50 opacity-40 animate-scan-vert z-20 pointer-events-none shadow-[0_0_20px_rgba(16,185,129,1)]"></div>
-                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-20 pointer-events-none"></div>
+              {/* شاشة البث السينمائية الهجينة */}
+              <div className={`relative w-full flex-1 rounded-2xl overflow-hidden border aspect-video bg-black transition-all duration-1000 group/screen ${isEarth ? 'border-emerald-500/40 shadow-[inset_0_0_50px_rgba(16,185,129,0.2)]' : 'border-purple-500/40 shadow-[inset_0_0_50px_rgba(168,85,247,0.2)]'}`}>
+                 <Crosshair className={`absolute top-4 left-4 z-20 pointer-events-none animate-pulse transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`} size={28} />
+                 <Crosshair className={`absolute bottom-4 right-4 z-20 pointer-events-none transform rotate-180 animate-pulse transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`} size={28} />
+                 <div className={`absolute top-0 left-0 w-full h-[2px] opacity-40 animate-scan-vert z-20 pointer-events-none transition-all duration-1000 ${isEarth ? 'bg-emerald-400/50 shadow-[0_0_20px_rgba(16,185,129,1)]' : 'bg-purple-400/50 shadow-[0_0_20px_rgba(168,85,247,1)]'}`}></div>
+                 
+                 {/* طبقة تظليل للحواف (Vignette) لإخفاء أطراف يوتيوب وجعله يبدو كنظام داخلي */}
+                 <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]"></div>
 
-                 {/* HTML5 Direct Video Player - Unbreakable Loop */}
-                 <video 
-                   autoPlay 
-                   loop 
-                   muted 
-                   playsInline 
-                   className="absolute inset-0 w-full h-full object-cover z-10"
-                 >
-                   <source src="https://sylvan.apple.com/Videos/comp_GL_G004_C010_v03_6Mbps.mp4" type="video/mp4" />
-                   <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c2/Orbiting_Earth_at_Night.webm/Orbiting_Earth_at_Night.webm.1080p.vp9.webm" type="video/webm" />
-                 </video>
+                 {isEarth ? (
+                    // فيديو الأرض (سيرفر داخلي MP4 ثابت)
+                    <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-1000">
+                      <source src="https://sylvan.apple.com/Videos/comp_GL_G004_C010_v03_6Mbps.mp4" type="video/mp4" />
+                    </video>
+                 ) : (
+                    // فيديو السدم والمجرات (سيرفر يوتيوب مخفي تماماً وبدون أزرار)
+                    <iframe
+                      className="absolute inset-0 w-full h-full pointer-events-none z-10 transform scale-[1.15] transition-opacity duration-1000" // التكبير يخفي الشعار والأطراف
+                      src={currentNebula}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                 )}
 
-                 <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
-                   <div className="bg-black/80 backdrop-blur-md px-4 py-2.5 rounded-lg border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+                 <div className="absolute bottom-4 left-4 z-30 pointer-events-none">
+                   <div className={`bg-black/80 backdrop-blur-md px-4 py-2.5 rounded-lg border text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)] transition-all duration-1000 ${isEarth ? 'border-emerald-500/40 text-emerald-400' : 'border-purple-500/40 text-purple-400'}`}>
                      <span className="flex items-center gap-2">
                        <Video size={14} className="text-white animate-pulse"/> 
-                       SECURE ORBITAL CAMERA [ACTIVE]
+                       {isEarth ? 'ORBITAL CAMERA [ACTIVE]' : 'DEEP SPACE TELESCOPE [ACTIVE]'}
                      </span>
-                     <span className="text-white border-t border-emerald-500/30 pt-1.5">ALT: ~408 KM | V: 27,600 KM/H</span>
+                     <span className={`text-white border-t pt-1.5 transition-colors duration-1000 ${isEarth ? 'border-emerald-500/30' : 'border-purple-500/30'}`}>
+                       {isEarth ? 'ALT: ~408 KM | V: 27,600 KM/H' : 'LOC: DEEP GALAXY | LIGHTYEARS AWAY'}
+                     </span>
                    </div>
                  </div>
                  
-                 <div className="absolute top-4 right-4 z-20 pointer-events-none">
-                   <span className="font-mono text-xs sm:text-sm font-bold tracking-widest flex items-center gap-2 text-emerald-500 drop-shadow-[0_0_8px_#10b981]">
-                     <span className="w-2.5 h-2.5 rounded-full animate-ping mr-1 bg-emerald-500"></span> 
-                     ON-AIR
+                 <div className="absolute top-4 right-4 z-30 pointer-events-none">
+                   <span className={`font-mono text-xs sm:text-sm font-bold tracking-widest flex items-center gap-2 transition-all duration-1000 ${isEarth ? 'text-emerald-500 drop-shadow-[0_0_8px_#10b981]' : 'text-purple-500 drop-shadow-[0_0_8px_#a855f7]'}`}>
+                     <span className={`w-2.5 h-2.5 rounded-full animate-ping mr-1 transition-colors duration-1000 ${isEarth ? 'bg-emerald-500' : 'bg-purple-500'}`}></span> 
+                     {isEarth ? 'ON-AIR' : 'SCANNING'}
                    </span>
                  </div>
               </div>
 
-              <div className="mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono text-emerald-400/60 uppercase tracking-widest">
-                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'تشفير كمي مستمر 256-BIT' : '256-BIT ENCRYPTION'}</span>
-                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse text-emerald-400"/> {isRTL ? 'بث مستقر دائم' : 'STABLE PERMANENT UPLINK'}</span>
+              <div className={`mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono uppercase tracking-widest transition-colors duration-1000 ${isEarth ? 'text-emerald-400/60' : 'text-purple-400/60'}`}>
+                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'خوارزمية محاكاة نشطة' : 'ACTIVE SIMULATION ALGORITHM'}</span>
+                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse"/> {isRTL ? 'نظام هجين مستقر' : 'STABLE HYBRID SYSTEM'}</span>
               </div>
             </div>
           </div>
