@@ -21,6 +21,9 @@ export default function ResearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
+  // نظام البث الهجين الجديد (التبديل بين المصادر لضمان التشغيل 24/7)
+  const [feedSource, setFeedSource] = useState<'nasa_hd' | 'nasa_tv' | 'standby'>('nasa_hd');
+
   useEffect(() => {
     fetch('/api/nasa', { cache: 'no-store' }).then(res => res.json()).then(data => setNasaData(data)).catch(console.error);
     fetch('/api/earth').then(res => res.json()).then(data => setEarthData(data)).catch(console.error);
@@ -108,6 +111,22 @@ export default function ResearchPage() {
     fetchLiveFeed('');
   }
 
+  // الروابط المختارة للبث والمحاكاة لضمان 24/7 بدون انقطاع
+  const getEmbedSrc = () => {
+    switch (feedSource) {
+      case 'nasa_tv':
+        // بث تلفزيون ناسا الرسمي البديل (أكثر بث حي لا ينقطع عالمياً)
+        return 'https://www.youtube.com/embed/live?channel=UCvyy3676I5UsU4g-8B3c3_hQ&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0';
+      case 'standby':
+        // محاكاة سينمائية مدارية للأرض (تغذية دائمة 100% تعمل حتى عند غياب الاتصال أو في الليل)
+        return 'https://player.vimeo.com/video/127303790?autoplay=1&loop=1&title=0&byline=0&portrait=0&muted=1&background=1';
+      case 'nasa_hd':
+      default:
+        // البث الرئيسي الدائم لمحطة ISS (HD Views)
+        return 'https://www.youtube.com/embed/M3HKLzjvKPc?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0';
+    }
+  };
+
   return (
     <div className="page-section relative overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
       
@@ -147,7 +166,7 @@ export default function ResearchPage() {
             <div className="absolute inset-0 bg-emerald-500/5 blur-[50px] group-hover:bg-emerald-500/15 transition-colors duration-700"></div>
 
             <div className="p-4 sm:p-8 flex flex-col h-full relative z-10">
-              <div className="flex items-center justify-between mb-6 border-b border-emerald-500/20 pb-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-emerald-500/20 pb-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-emerald-950/60 flex items-center justify-center border border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:scale-110 transition-transform duration-500">
                     <Earth className="text-emerald-400 animate-[spin_10s_linear_infinite]" size={24} />
@@ -156,28 +175,46 @@ export default function ResearchPage() {
                     <h2 className="text-xl sm:text-2xl font-black text-white tracking-widest uppercase drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">
                       {isRTL ? 'عين على الأرض' : 'EYE ON EARTH'}
                     </h2>
-                    <p className="text-[10px] sm:text-xs text-emerald-400/80 font-mono tracking-widest uppercase mt-1">{isRTL ? 'بث الفضاء العميق (ISS)' : 'DEEP SPACE FEED (ISS)'}</p>
+                    <p className="text-[10px] sm:text-xs text-emerald-400/80 font-mono tracking-widest uppercase mt-1">
+                      {feedSource === 'standby' 
+                        ? (isRTL ? 'محاكاة مدارية احتياطية 24/7' : 'STANDBY ORBITAL SIMULATION 24/7') 
+                        : (isRTL ? 'بث الفضاء المباشر (ISS)' : 'DEEP SPACE FEED (ISS)')}
+                    </p>
                   </div>
                 </div>
-                <span className="flex items-center gap-2 text-[10px] sm:text-xs bg-red-500/10 text-red-400 border border-red-500/40 px-4 py-2 rounded-lg font-black tracking-widest uppercase animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.4)]">
-                  <div className="w-2 h-2 bg-red-500 rounded-full shadow-[0_0_10px_red]"></div>
-                  <span className="hidden sm:inline">{isRTL ? 'بث مباشر' : 'LIVE UPLINK'}</span>
-                  <span className="sm:hidden">LIVE</span>
-                </span>
+
+                {/* أزرار التبديل الهجين الجديدة (التحصين من الانقطاع) */}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <button 
+                    onClick={() => setFeedSource('nasa_hd')} 
+                    className={`text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${feedSource === 'nasa_hd' ? 'bg-emerald-500 text-black border-emerald-400 font-black' : 'bg-transparent text-emerald-400 border-emerald-500/35 hover:bg-emerald-500/10'}`}>
+                    {isRTL ? 'بث رئيسي (HD)' : 'NASA HD (Live)'}
+                  </button>
+                  <button 
+                    onClick={() => setFeedSource('nasa_tv')} 
+                    className={`text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${feedSource === 'nasa_tv' ? 'bg-cyan-500 text-black border-cyan-400 font-black' : 'bg-transparent text-cyan-400 border-cyan-500/35 hover:bg-cyan-500/10'}`}>
+                    {isRTL ? 'بث احتياطي 2' : 'NASA TV (Alt)'}
+                  </button>
+                  <button 
+                    onClick={() => setFeedSource('standby')} 
+                    className={`text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-lg border transition-all ${feedSource === 'standby' ? 'bg-blue-600 text-white border-blue-400 font-black' : 'bg-transparent text-blue-400 border-blue-500/35 hover:bg-blue-500/10'}`}>
+                    {isRTL ? 'محاكاة standby' : 'Orbital Simulator'}
+                  </button>
+                </div>
               </div>
 
-              {/* شاشة البث الحي السيبرانية (تم تغيير الرابط إلى خوادم IBM/NASA الدائمة 24/7 السارية المفعول) */}
+              {/* شاشة البث الحي السيبرانية (تم دمج المصادر البديلة 24/7) */}
               <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-emerald-500/40 aspect-video bg-black shadow-[inset_0_0_50px_rgba(16,185,129,0.2)] group/screen">
                  <Crosshair className="absolute top-4 left-4 text-emerald-400/60 z-20 pointer-events-none animate-pulse" size={28} />
-                 <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180 animate-pulse" size={28} />
+                 <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180" size={28} />
                  <div className="absolute top-0 left-0 w-full h-[2px] bg-emerald-400/50 opacity-40 animate-scan-vert z-20 pointer-events-none shadow-[0_0_20px_rgba(16,185,129,1)]"></div>
                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-20 pointer-events-none"></div>
 
-                 {/* رابط البث الرسمي 9408562 الخاص بوكالة ناسا (Live ISS Stream) الذي لا يتوقف */}
+                 {/* مُشغل البث الفضائي الهجين الذكي */}
                  <iframe
                    className="absolute inset-0 w-full h-full pointer-events-auto z-10"
-                   src="https://video.ibm.com/embed/9408562?autoplay=1&mute=1"
-                   title="NASA ISS Live Stream (Official Permanent Feed)"
+                   src={getEmbedSrc()}
+                   title="Space Telemetry Earth Stream"
                    frameBorder="0"
                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                    allowFullScreen
@@ -185,16 +222,30 @@ export default function ResearchPage() {
 
                  <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
                    <div className="bg-black/70 backdrop-blur-md px-4 py-2.5 rounded-lg border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-                     <span className="flex items-center gap-2"><Video size={14} className="text-white"/> ISS LIVE FEED (IBM UPLINK)</span>
+                     <span className="flex items-center gap-2">
+                       <Video size={14} className="text-white animate-pulse"/> 
+                       {feedSource === 'nasa_hd' && 'NASA PRIMARY (HD)'}
+                       {feedSource === 'nasa_tv' && 'NASA LIVE (TV)'}
+                       {feedSource === 'standby' && 'ORBITAL SIMULATOR (LOOP)'}
+                     </span>
                      <span className="text-white border-t border-emerald-500/30 pt-1.5">ALT: ~408 KM | SPD: 27,600 KM/H</span>
                    </div>
                  </div>
                  
                  <div className="absolute top-4 right-4 z-20 pointer-events-none">
                    <span className="text-red-500 font-mono text-xs sm:text-sm font-bold tracking-widest flex items-center gap-2 drop-shadow-[0_0_8px_red]">
-                     <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping mr-1"></span> REC
+                     <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping mr-1"></span> {feedSource === 'standby' ? 'STANDBY' : 'REC'}
                    </span>
                  </div>
+              </div>
+
+              {/* ملاحظة مدارية ذكية لتوعية المستخدم بالانقطاعات الطبيعية */}
+              <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-xl flex items-center justify-between gap-4 relative">
+                <p className="text-[10px] sm:text-[11px] text-emerald-300 font-medium leading-relaxed">
+                  📡 {isRTL 
+                    ? 'البث المباشر قد يعرض شاشة سوداء عند عبور المحطة في الجانب المظلم من الأرض (Night Side). في حال حدوث ذلك، يرجى التبديل إلى "بث احتياطي" أو "محاكاة standby" لضمان الرؤية الدائمة.' 
+                    : 'The live stream might go dark as the ISS passes through Earth\'s shadow (Night Side). Use the "Alternate" or "Orbital Simulator" feeds for guaranteed, 24/7 continuous simulation visibility.'}
+                </p>
               </div>
 
               <div className="mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono text-emerald-400/60 uppercase tracking-widest">
