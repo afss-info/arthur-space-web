@@ -48,7 +48,7 @@ export const siteKnowledge = {
       id: "program-01",
       nameEn: "Arthur Scholars Program (ASP) 2026-2027",
       nameAr: "برنامج آرثر للعلماء (ASP) 2026-2027",
-      status: "CLOSED (مغلق حالياً)",
+      status: "CLOSED (انتهى التسجيل)",
       duration: "One Academic Year (2026–2027) - عام أكاديمي واحد",
       scope: "International - دولي",
       description: "A one-year international training program providing mentorship, advanced training, and guidance for international scientific competitions.",
@@ -58,7 +58,7 @@ export const siteKnowledge = {
       id: "program-02",
       nameEn: "Atheris Research Project",
       nameAr: "مشروع أثيريس البحثي",
-      status: "CLOSED (مغلق حالياً)",
+      status: "CLOSED (انتهى التسجيل)",
       description: "A collaborative research initiative aimed at publishing scientific research papers through specialized, multidisciplinary teams.",
       teams: [
         "Biomedical Engineering (هندسة الطب الحيوي)",
@@ -91,7 +91,7 @@ export const siteKnowledge = {
       path: "/research",
       nameEn: "Space Research",
       nameAr: "أبحاث الفضاء",
-      description: "قاعدة بيانات ضخمة من الأوراق البحثية، أحدث أخبار وكالات الفضاء، وصورة يومية مع مقال من ناسا تحت عنوان بالإضافة الى تفاصيل محطة الفضاء الدولية ISS و ايضا رادار يبين تفاصيل الكويكبات و النياك القريبة على الارض و صور مباشرة للارض من القمر الصناعي DSCOVR DEEP SPACE OBSERVATORY."
+      description: "قاعدة بيانات ضخمة من الأوراق البحثية، أحدث أخبار وكالات الفضاء، وصورة يومية مع مقال من ناسا تحت عنوان بالإضافة الى تفاصيل محطة الفضاء الدولية ISS و ايضا رادار يبين تفاصيل الكويكبات و النياك القريبة على الارض و فيديو مباشر للأرض من كاميرا ISS كما ينقلب الفيديو عندما تصبح المحطة في المنطقة المظلمة للأرض لى فيديوهات تظهر سدم و نجوم و وثائقيات من كوننا البديع."
     },
     {
       path: "/blog",
