@@ -17,7 +17,6 @@ async function searchYoutube(params: Record<string, string>) {
   return res.json();
 }
 
-// 🆕 التحقق من أن الفيديوهات قابلة فعلاً للتضمين (embeddable) قبل استخدامها
 async function filterEmbeddableVideos(videoIds: string[]): Promise<string[]> {
   if (videoIds.length === 0) return [];
   const url = new URL('https://www.googleapis.com/youtube/v3/videos');
@@ -34,26 +33,49 @@ async function filterEmbeddableVideos(videoIds: string[]): Promise<string[]> {
     .map((item: any) => item.id);
 }
 
+async function findLiveEarthVideos(): Promise<string[]> {
+  // المحاولة 1: بث حي من قناة ناسا الرسمية تحديدًا
+  const attempt1 = await searchYoutube({
+    part: 'snippet',
+    channelId: NASA_CHANNEL_ID,
+    eventType: 'live',
+    type: 'video',
+    q: 'ISS live earth view',
+    maxResults: '5',
+    safeSearch: 'strict',
+  });
+  let ids = await filterEmbeddableVideos(
+    (attempt1.items || []).map((i: any) => i.id?.videoId).filter(Boolean)
+  );
+  if (ids.length > 0) return ids;
+
+  // المحاولة 2: بث حي بدون تقييد بقناة معينة (أوسع نطاقًا)
+  const attempt2 = await searchYoutube({
+    part: 'snippet',
+    eventType: 'live',
+    type: 'video',
+    q: 'ISS International Space Station live earth camera 24/7',
+    maxResults: '8',
+    safeSearch: 'strict',
+  });
+  ids = await filterEmbeddableVideos(
+    (attempt2.items || []).map((i: any) => i.id?.videoId).filter(Boolean)
+  );
+  if (ids.length > 0) return ids;
+
+  // المحاولة 3: نفس المعرّف الاحتياطي، لكن بعد التأكد من قابليته للتضمين فعليًا
+  const fallbackChecked = await filterEmbeddableVideos(FALLBACK_EARTH);
+  return fallbackChecked; // قد تكون فارغة، والدالة المستدعية ستتعامل مع ذلك
+}
+
 export async function GET() {
   if (!YOUTUBE_API_KEY) {
     return NextResponse.json({ earth: FALLBACK_EARTH, deepSpace: FALLBACK_DEEP_SPACE, source: 'fallback-no-key' });
   }
 
   try {
-    // 1) بث حي من ناسا للأرض
-    const earthLive = await searchYoutube({
-      part: 'snippet',
-      channelId: NASA_CHANNEL_ID,
-      eventType: 'live',
-      type: 'video',
-      q: 'ISS live earth view',
-      maxResults: '5',
-      safeSearch: 'strict',
-    });
-    const rawEarthIds = (earthLive.items || []).map((item: any) => item.id?.videoId).filter(Boolean);
-    const earthIds = await filterEmbeddableVideos(rawEarthIds);
+    const earthIds = await findLiveEarthVideos();
 
-    // 2) فيديوهات فضاء عميق حديثة
     const deepSpace = await searchYoutube({
       part: 'snippet',
       type: 'video',
@@ -65,10 +87,13 @@ export async function GET() {
       safeSearch: 'strict',
     });
     const rawDeepSpaceIds = (deepSpace.items || []).map((item: any) => item.id?.videoId).filter(Boolean);
-    const deepSpaceIds = await filterEmbeddableVideos(rawDeepSpaceIds);
+    let deepSpaceIds = await filterEmbeddableVideos(rawDeepSpaceIds);
+    if (deepSpaceIds.length === 0) {
+      deepSpaceIds = await filterEmbeddableVideos(FALLBACK_DEEP_SPACE);
+    }
 
     return NextResponse.json({
-      earth: earthIds.length > 0 ? earthIds : FALLBACK_EARTH,
+      earth: earthIds.length > 0 ? earthIds : FALLBACK_EARTH, // حل أخير فقط إذا فشل كل شيء حتى الفحص
       deepSpace: deepSpaceIds.length > 0 ? deepSpaceIds : FALLBACK_DEEP_SPACE,
       source: 'youtube-api',
     });
