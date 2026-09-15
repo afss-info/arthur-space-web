@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Rocket, Target, Activity, Lock, Orbit, Crosshair, Fingerprint, Zap, BookOpen, Atom, Calculator, Cpu, FlaskConical, Network, Stethoscope, ChevronRight, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Rocket, Target, Activity, Lock, Orbit, Crosshair, Fingerprint, Zap, Atom, Calculator, Cpu, FlaskConical, Network, Stethoscope, CheckCircle2, ShieldAlert, Telescope, Database, Users } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
 // مكون الجسيمات العائمة في الفضاء
@@ -34,7 +34,6 @@ export default function ProgramsPage() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  // نصوص البرامج ثنائية اللغة
   const aspTitle = isRTL ? 'برنامج آرثر للعلماء (ASP)' : 'Arthur Scholars Program (ASP)';
   const aspDesc = isRTL 
     ? 'برنامج تدريبي دولي مدته عام واحد يوفر الإرشاد والتدريب المتقدم والتوجيه للمسابقات العلمية الدولية.'
@@ -56,7 +55,7 @@ export default function ProgramsPage() {
   return (
     <div className="page-section relative overflow-hidden bg-[#01030a] min-h-screen" dir={isRTL ? 'rtl' : 'ltr'}>
       
-      {/* CSS Effects for Zero Gravity & UI */}
+      {/* CSS Effects */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes zero-gravity-1 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(1deg); } }
         @keyframes zero-gravity-2 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(15px) rotate(-1deg); } }
@@ -96,16 +95,13 @@ export default function ProgramsPage() {
           </div>
         </div>
 
-        {/* MISSION 01: ASP (Zero Gravity Card 1) */}
+        {/* MISSION 01: ASP */}
         <div className="relative mb-16 animate-zg-1 group">
-          {/* تأثير تثبيت الجاذبية عند التمرير */}
           <div className="absolute inset-0 bg-blue-500/10 blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          
           <div className="relative glass-card border border-blue-500/30 bg-black/60 rounded-3xl p-1 overflow-hidden transition-all duration-700 group-hover:transform group-hover:scale-[1.01] group-hover:shadow-[0_0_40px_rgba(59,130,246,0.3)] group-hover:border-blue-400/50 backdrop-blur-xl">
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50 animate-pulse"></div>
             
             <div className="p-8 sm:p-10 flex flex-col lg:flex-row gap-10">
-              {/* Mission Intel */}
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -138,7 +134,6 @@ export default function ProgramsPage() {
                   </div>
                 </div>
 
-                {/* Telemetry Progress Bar */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-[10px] font-mono text-cyan-400 tracking-widest uppercase">
                     <span>{isRTL ? 'مسار التدريب' : 'TRAINING PROGRESS'}</span>
@@ -152,13 +147,11 @@ export default function ProgramsPage() {
                 </div>
               </div>
 
-              {/* Payload Modules (Tracks) */}
               <div className="lg:w-1/3 bg-black/40 rounded-2xl border border-white/5 p-6 relative overflow-hidden group/payload">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[40px] pointer-events-none"></div>
                 <h3 className="text-xs font-bold text-gray-500 tracking-[0.2em] uppercase mb-6 flex items-center gap-2">
                   <Target size={14} className="text-blue-500/50"/> {isRTL ? 'حمولات المسارات' : 'TRACK PAYLOADS'}
                 </h3>
-                
                 <div className="grid grid-cols-2 gap-3">
                   {[
                     { icon: Calculator, label: isRTL ? 'رياضيات' : 'Mathematics' },
@@ -179,15 +172,13 @@ export default function ProgramsPage() {
           </div>
         </div>
 
-        {/* MISSION 02: ATHERIS (Zero Gravity Card 2) */}
+        {/* MISSION 02: ATHERIS */}
         <div className="relative mb-20 animate-zg-2 group" style={{ animationDelay: '1.5s' }}>
           <div className="absolute inset-0 bg-purple-500/10 blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-          
           <div className="relative glass-card border border-purple-500/30 bg-black/60 rounded-3xl p-1 overflow-hidden transition-all duration-700 group-hover:transform group-hover:scale-[1.01] group-hover:shadow-[0_0_40px_rgba(168,85,247,0.3)] group-hover:border-purple-400/50 backdrop-blur-xl">
             <div className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50 animate-pulse"></div>
             
             <div className="p-8 sm:p-10 flex flex-col lg:flex-row-reverse gap-10">
-              {/* Mission Intel */}
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -209,7 +200,6 @@ export default function ProgramsPage() {
 
                 <p className="text-gray-300 text-sm leading-relaxed mb-8">{atherisDesc}</p>
 
-                {/* Telemetry Progress Bar */}
                 <div className="space-y-2 mb-8">
                   <div className="flex justify-between text-[10px] font-mono text-purple-400 tracking-widest uppercase">
                     <span>{isRTL ? 'مرحلة صياغة الأبحاث' : 'DRAFTING PHASE'}</span>
@@ -223,13 +213,11 @@ export default function ProgramsPage() {
                 </div>
               </div>
 
-              {/* Payload Modules (Teams) */}
               <div className="lg:w-1/3 bg-black/40 rounded-2xl border border-white/5 p-6 relative overflow-hidden group/payload">
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 blur-[40px] pointer-events-none"></div>
                 <h3 className="text-xs font-bold text-gray-500 tracking-[0.2em] uppercase mb-6 flex items-center gap-2">
                   <Users size={14} className="text-purple-500/50"/> {isRTL ? 'أسراب البحث' : 'RESEARCH SQUADRONS'}
                 </h3>
-                
                 <div className="flex flex-col gap-3">
                   {[
                     { icon: Stethoscope, label: isRTL ? 'هندسة طبية حيوية' : 'Biomedical Engineering' },
@@ -328,8 +316,3 @@ export default function ProgramsPage() {
     </div>
   );
 }
-
-// Dummy Icons to prevent lucide-react import errors
-const Users = ({ className, size }: { className?: string, size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-);
