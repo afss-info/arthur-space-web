@@ -169,22 +169,23 @@ export default function ResearchPage() {
                 </span>
               </div>
 
-              {/* شاشة البث الحي السيبرانية (تم وضع سيرفر يوتيوب ثابت 24/7 يعمل بنظام Loop للأرض من الفضاء 4K ولن يتوقف أبداً) */}
+              {/* شاشة البث المباشر (تم الاستغناء عن iframes ويوتيوب وتم وضع فيديو HTML مباشر غير قابل للتعطل) */}
               <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-emerald-500/40 aspect-video bg-black shadow-[inset_0_0_50px_rgba(16,185,129,0.2)] group/screen">
                  <Crosshair className="absolute top-4 left-4 text-emerald-400/60 z-20 pointer-events-none animate-pulse" size={28} />
                  <Crosshair className="absolute bottom-4 right-4 text-emerald-400/60 z-20 pointer-events-none transform rotate-180 animate-pulse" size={28} />
                  <div className="absolute top-0 left-0 w-full h-[2px] bg-emerald-400/50 opacity-40 animate-scan-vert z-20 pointer-events-none shadow-[0_0_20px_rgba(16,185,129,1)]"></div>
                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-20 pointer-events-none"></div>
 
-                 {/* مُشغل البث الفضائي الدائم المباشر بدون برامج أو توقف */}
-                 <iframe
-                   className="absolute inset-0 w-full h-full pointer-events-auto z-10"
-                   src="https://www.youtube.com/embed/86YLFOog4GM?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=86YLFOog4GM"
-                   title="Earth From Space 24/7"
-                   frameBorder="0"
-                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                   allowFullScreen
-                 ></iframe>
+                 {/* مشغل الفيديو الخام المباشر للارض من الفضاء - لا يوجد يوتيوب هنا */}
+                 <video 
+                   autoPlay 
+                   loop 
+                   muted 
+                   playsInline 
+                   className="absolute inset-0 w-full h-full object-cover z-10"
+                 >
+                   <source src="https://sylvan.apple.com/Videos/comp_GL_G004_C010_v03_6Mbps.mp4" type="video/mp4" />
+                 </video>
 
                  <div className="absolute bottom-4 left-4 z-20 pointer-events-none">
                    <div className="bg-black/80 backdrop-blur-md px-4 py-2.5 rounded-lg border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-xs font-mono tracking-widest uppercase flex flex-col gap-1.5 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
@@ -205,8 +206,8 @@ export default function ResearchPage() {
               </div>
 
               <div className="mt-5 flex justify-between items-center text-[10px] sm:text-xs font-mono text-emerald-400/60 uppercase tracking-widest">
-                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'تشفير كمي مستمر 256-BIT' : '256-BIT ENCRYPTION'}</span>
-                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse text-emerald-400"/> {isRTL ? 'بث مستقر (سيرفر رئيسي)' : 'STABLE UPLINK'}</span>
+                <span className="flex items-center gap-1.5"><Lock size={14}/> {isRTL ? 'تشفير كمي 256-BIT' : '256-BIT ENCRYPTION'}</span>
+                <span className="flex items-center gap-1.5"><Activity size={14} className="animate-pulse text-emerald-400"/> {isRTL ? 'إشارة مستقرة (خادم دائم)' : 'STABLE UPLINK (PERMANENT SERVER)'}</span>
               </div>
             </div>
           </div>
