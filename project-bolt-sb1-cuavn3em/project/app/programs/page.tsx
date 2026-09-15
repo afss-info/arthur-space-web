@@ -1,27 +1,26 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Rocket, Target, Activity, Lock, Orbit, Crosshair, Fingerprint, Zap, Atom, Calculator, Cpu, FlaskConical, Network, Stethoscope, CheckCircle2, ShieldAlert, Telescope, Database, Users } from 'lucide-react';
+import { Rocket, Target, Activity, Lock, Orbit, Crosshair, Fingerprint, Zap, Atom, Calculator, Cpu, FlaskConical, Network, Stethoscope, CheckCircle2, ShieldAlert, Telescope, Database, Users, Loader2 } from 'lucide-react';
 import { useLang } from '@/contexts/LanguageContext';
 
-// مكون الجسيمات العائمة في الفضاء
-const FloatingDebris = () => {
-  const [debris, setDebris] = useState<any[]>([]);
+// مكون النجوم المتساقطة الخارق
+const StarsBackground = () => {
+  const [stars, setStars] = useState<any[]>([]);
   useEffect(() => {
-    setDebris(Array.from({ length: 20 }).map((_, i) => ({
+    setStars(Array.from({ length: 50 }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      animationDuration: `${Math.random() * 10 + 10}s`,
+      animationDuration: `${Math.random() * 3 + 2}s`,
       animationDelay: `${Math.random() * 5}s`,
-      size: Math.random() * 3 + 1,
+      size: Math.random() * 2 + 1,
     })));
   }, []);
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {debris.map((d) => (
-        <div key={d.id} className="absolute bg-blue-500/20 rounded-full animate-float-slow"
-          style={{ left: d.left, top: d.top, width: `${d.size}px`, height: `${d.size}px`, animationDuration: d.animationDuration, animationDelay: d.animationDelay }}
+      {stars.map((star) => (
+        <div key={star.id} className="absolute bg-white rounded-full shadow-[0_0_12px_#fff] animate-fall"
+          style={{ left: star.left, width: `${star.size}px`, height: `${star.size}px`, animationDuration: star.animationDuration, animationDelay: star.animationDelay, top: '-5%' }}
         />
       ))}
     </div>
@@ -33,6 +32,7 @@ export default function ProgramsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const aspTitle = isRTL ? 'برنامج آرثر للعلماء (ASP)' : 'Arthur Scholars Program (ASP)';
   const aspDesc = isRTL 
@@ -44,11 +44,30 @@ export default function ProgramsPage() {
     ? 'مبادرة بحثية تعاونية تهدف إلى نشر أوراق بحثية علمية من خلال فرق متخصصة ومتعددة التخصصات.'
     : 'A collaborative research initiative aimed at publishing scientific research papers through specialized, multidisciplinary teams.';
 
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
+  // وظيفة الإرسال الحقيقية للباك إند
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if(email) {
-      setSubmitted(true);
-      setTimeout(() => { setIsModalOpen(false); setSubmitted(false); setEmail(''); }, 3000);
+      setIsSending(true);
+      try {
+        await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        setSubmitted(true);
+        setTimeout(() => { 
+          setIsModalOpen(false); 
+          setSubmitted(false); 
+          setEmail(''); 
+        }, 4000); // إبقاء رسالة النجاح لـ 4 ثوانٍ
+        
+      } catch (error) {
+        console.error("Transmission failed", error);
+      } finally {
+        setIsSending(false);
+      }
     }
   };
 
@@ -59,18 +78,18 @@ export default function ProgramsPage() {
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes zero-gravity-1 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(1deg); } }
         @keyframes zero-gravity-2 { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(15px) rotate(-1deg); } }
-        @keyframes float-slow { 0%, 100% { transform: translate(0, 0); opacity: 0.2; } 50% { transform: translate(20px, -20px); opacity: 0.8; } }
+        @keyframes fall { 0% { transform: translateY(-10vh) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) translateX(-20vw); opacity: 0; } }
         @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(500%); } }
         
         .animate-zg-1 { animation: zero-gravity-1 8s ease-in-out infinite; }
         .animate-zg-2 { animation: zero-gravity-2 10s ease-in-out infinite; }
-        .animate-float-slow { animation: float-slow 15s ease-in-out infinite; }
+        .animate-fall { animation-name: fall; animation-timing-function: linear; animation-iteration-count: infinite; }
         .animate-scan { animation: scanline 3s linear infinite; }
         .matrix-text { text-shadow: 0 0 8px rgba(59,130,246,0.8); }
       `}} />
 
       {/* Background Layers */}
-      <FloatingDebris />
+      <StarsBackground />
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none z-0"></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -255,7 +274,7 @@ export default function ProgramsPage() {
         </div>
       </div>
 
-      {/* Cyber Waitlist Modal */}
+      {/* Cyber Waitlist Modal (Real Database Connection) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.05] pointer-events-none z-0"></div>
@@ -267,7 +286,7 @@ export default function ProgramsPage() {
               <div className="flex items-center gap-3">
                 <Database className="text-blue-400 animate-pulse" size={20}/>
                 <h3 className="text-white font-mono tracking-widest uppercase text-sm matrix-text">
-                  {isRTL ? 'محطة الاتصال' : 'COMM LINK TERMINAL'}
+                  {isRTL ? 'محطة الاتصال وقاعدة البيانات' : 'COMM LINK & DATABASE'}
                 </h3>
               </div>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-white transition-colors">
@@ -280,14 +299,18 @@ export default function ProgramsPage() {
                 <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/50 flex items-center justify-center">
                   <CheckCircle2 size={30} className="text-green-400"/>
                 </div>
-                <h4 className="text-white font-bold tracking-widest uppercase text-lg mt-2">{isRTL ? 'تم حفظ التوقيع' : 'SIGNATURE LOGGED'}</h4>
-                <p className="text-green-400 font-mono text-xs">{isRTL ? 'سيتم إشعارك عند فتح بوابات الانطلاق.' : 'You will be notified when launch gates open.'}</p>
+                <h4 className="text-white font-bold tracking-widest uppercase text-lg mt-2">
+                  {isRTL ? 'تم حفظ التوقيع في السجل الكوني' : 'SIGNATURE SECURED IN DATABASE'}
+                </h4>
+                <p className="text-green-400 font-mono text-xs">
+                  {isRTL ? 'أنت الآن على رادار المؤسسة. سيصلك إشعار فور فتح بوابات الانطلاق أو نشر أي أخبار.' : 'You are on our radar. You will be notified instantly when launch gates open.'}
+                </p>
               </div>
             ) : (
               <form onSubmit={handleWaitlistSubmit} className="space-y-6">
                 <div>
                   <p className="text-gray-300 text-xs font-mono mb-6 leading-relaxed">
-                    {isRTL ? 'قاعدة البيانات مغلقة حالياً. أدخل هويتك الرقمية (البريد الإلكتروني) لتجاوز النظام وتلقي إشعار فوري عند بدء تسجيل مهمات الدورة القادمة.' : 'Database is currently locked. Enter your digital ID (email) to bypass the system and receive a priority uplink when the next cycle missions open.'}
+                    {isRTL ? 'أدخل هويتك الرقمية (البريد الإلكتروني) ليتم حفظها في قاعدة بياناتنا. ستتلقى تحديثات دورية وإشعاراً فورياً عند بدء المهام القادمة.' : 'Enter your digital ID (email) to be secured in our central database. You will receive exclusive updates and priority notifications for future missions.'}
                   </p>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -296,16 +319,22 @@ export default function ProgramsPage() {
                     <input 
                       type="email" 
                       required
+                      disabled={isSending}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder={isRTL ? "أدخل بريدك الإلكتروني..." : "Enter your email address..."} 
-                      className="w-full bg-blue-950/20 border border-blue-500/30 rounded-xl py-4 pl-10 pr-4 text-white font-mono focus:outline-none focus:border-blue-400 focus:bg-blue-900/30 transition-all text-sm"
+                      placeholder={isRTL ? "أدخل بريدك الإلكتروني هنا..." : "Enter your email address..."} 
+                      className="w-full bg-blue-950/20 border border-blue-500/30 rounded-xl py-4 pl-10 pr-4 text-white font-mono focus:outline-none focus:border-blue-400 focus:bg-blue-900/30 transition-all text-sm disabled:opacity-50"
                       dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </div>
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold tracking-widest uppercase py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)]">
-                  <Zap size={16}/> {isRTL ? 'تهيئة الاتصال' : 'INITIATE UPLINK'}
+                <button 
+                  type="submit" 
+                  disabled={isSending}
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold tracking-widest uppercase py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] disabled:opacity-50"
+                >
+                  {isSending ? <Loader2 className="animate-spin" size={16}/> : <Zap size={16}/>}
+                  {isSending ? (isRTL ? 'جاري حقن البيانات...' : 'INJECTING DATA...') : (isRTL ? 'تهيئة الاتصال الآمن' : 'SECURE UPLINK')}
                 </button>
               </form>
             )}
